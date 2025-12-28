@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - ConnectHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <h1 class="logo">ConnectHub</h1>
+        <ul class="nav-menu">
+            <li><a th:href="@{/home}">Accueil</a></li>
+            <li><a th:href="@{/profile}">Mon Profil</a></li>
+            <li><a th:href="@{/logout}">Déconnexion</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Message de succès -->
+    <div th:if="${successMessage}" class="alert alert-success">
+        <p th:text="${successMessage}"></p>
+    </div>
+
+    <div class="profile-card">
+        <div class="profile-header">
+            <img th:src="${user.photoUrl}" alt="Photo de profil" class="profile-photo">
+            <div class="profile-info">
+                <h2 th:text="${user.name}">Nom Utilisateur</h2>
+                <p class="email" th:text="${user.email}">email@exemple.com</p>
+                <p class="bio" th:text="${user.bio} ?: 'Aucune bio'">Bio de l'utilisateur</p>
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat">
+                <h3 th:text="${user.friendsCount}">0</h3>
+                <p>Amis</p>
+            </div>
+        </div>
+
+        <!-- Bouton Modifier (seulement si c'est son propre profil) -->
+        <div th:if="${isOwnProfile}" class="profile-actions">
+            <a th:href="@{/profile/edit}" class="btn btn-primary">Modifier mon profil</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

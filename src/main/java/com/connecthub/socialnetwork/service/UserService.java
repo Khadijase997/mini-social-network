@@ -28,11 +28,11 @@ public class UserService {
             throw new RuntimeException("Cet email est déjà utilisé");
         }
 
-        // Créer le nouvel utilisateur
+        // Créer l'utilisateur avec mot de passe hashé
         User user = new User(
                 request.getName(),
                 request.getEmail(),
-                passwordEncoder.encode(request.getPassword())
+                passwordEncoder.encode(request.getPassword())  // 🔒 HASHER avec BCrypt
         );
 
         return userRepository.save(user);
@@ -46,15 +46,22 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
     public UserResponse toUserResponse(User user) {
-        int friendsCount = userRepository.countFriends(user.getId());
-        return new UserResponse(
+        UserResponse response = new UserResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.getBio(),
-                user.getPhotoUrl(),
-                friendsCount
+                user.getPhotoUrl()
         );
+
+        int friendsCount = userRepository.countFriends(user.getId());
+        response.setFriendsCount(friendsCount);
+
+        return response;
     }
 }

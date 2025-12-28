@@ -1,0 +1,695 @@
+/* ============================================
+   CONNECTHUB THEME - Couleurs inspirées du design
+   ============================================ */
+:root {
+    --primary-color: #6B9080;
+    --primary-light: #A4C3B2;
+    --background: #EAF4F4;
+    --background-light: #CCE3DE;
+    --surface: #FFFFFF;
+    --text-primary: #2C3E50;
+    --text-secondary: #6B7280;
+    --success-color: #6B9080;
+    --error-color: #E76F51;
+    --border-color: #CCE3DE;
+    --shadow: 0 2px 8px rgba(107, 144, 128, 0.1);
+    --shadow-lg: 0 10px 30px rgba(107, 144, 128, 0.15);
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif;
+    background-color: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--primary-light);
+}
+
+/* ============================================
+   AUTH PAGES - Login & Register avec background
+   ============================================ */
+body.auth-page {
+    background: linear-gradient(135deg,
+    #CCE3DE 0%,
+    #EAF4F4 25%,
+    #F6FFF8 50%,
+    #EAF4F4 75%,
+    #CCE3DE 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Bulles décoratives flottantes */
+body.auth-page::before {
+    content: '';
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, rgba(164, 195, 178, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+body.auth-page::after {
+    content: '';
+    position: fixed;
+    bottom: -10%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle, rgba(204, 227, 222, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(-20px, -20px);
+    }
+}/* ============================================
+   AUTH PAGES - Login & Register avec dégradé pastel
+   ============================================ */
+body.auth-page {
+    background: linear-gradient(135deg,
+    #CCE3DE 0%,
+    #EAF4F4 25%,
+    #F6FFF8 50%,
+    #EAF4F4 75%,
+    #CCE3DE 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Bulles décoratives flottantes */
+body.auth-page::before {
+    content: '';
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, rgba(164, 195, 178, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+body.auth-page::after {
+    content: '';
+    position: fixed;
+    bottom: -10%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle, rgba(204, 227, 222, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(-20px, -20px);
+    }
+}/* ============================================
+   AUTH PAGES - Login & Register avec dégradé pastel
+   ============================================ */
+body.auth-page {
+    background: linear-gradient(135deg,
+    #CCE3DE 0%,
+    #EAF4F4 25%,
+    #F6FFF8 50%,
+    #EAF4F4 75%,
+    #CCE3DE 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Bulles décoratives flottantes */
+body.auth-page::before {
+    content: '';
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, rgba(164, 195, 178, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+body.auth-page::after {
+    content: '';
+    position: fixed;
+    bottom: -10%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle, rgba(204, 227, 222, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(-20px, -20px);
+    }
+}/* ============================================
+   AUTH PAGES - Login & Register avec dégradé pastel
+   ============================================ */
+body.auth-page {
+    background: linear-gradient(135deg,
+    #CCE3DE 0%,
+    #EAF4F4 25%,
+    #F6FFF8 50%,
+    #EAF4F4 75%,
+    #CCE3DE 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Bulles décoratives flottantes */
+body.auth-page::before {
+    content: '';
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, rgba(164, 195, 178, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+body.auth-page::after {
+    content: '';
+    position: fixed;
+    bottom: -10%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle, rgba(204, 227, 222, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(-20px, -20px);
+    }
+}
+/* ============================================
+   CONTAINER
+   ============================================ */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+.navbar {
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    border-bottom: 3px solid var(--primary-light);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-family: 'Comic Sans MS', cursive;
+    letter-spacing: 1px;
+}
+
+.nav-menu {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-menu li a {
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s;
+}
+
+.nav-menu li a:hover {
+    background: var(--background-light);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   AUTH FORMS - Login & Register
+   ============================================ */
+.login-box,
+
+.register-box {
+    max-width: 450px;
+    margin: 2rem auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 2.5rem;
+    border-radius: 30px;
+    box-shadow: var(--shadow-lg);
+    border: 3px solid var(--primary-light);
+}
+
+.login-box h1,
+.register-box h1 {
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-family: 'Comic Sans MS', cursive;
+    font-weight: 700;
+}
+
+.login-box h2,
+.register-box h2 {
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+.edit-profile-box {
+    max-width: 600px;
+    margin: 2rem auto;
+    background: var(--surface);
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--border-color);
+}
+
+.edit-profile-box h2 {
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+}
+
+/* ============================================
+   FORMS
+   ============================================ */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 15px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(107, 144, 128, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(107, 144, 128, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(107, 144, 128, 0.4);
+}
+
+.btn-secondary {
+    background: var(--text-secondary);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4B5563;
+}
+
+/* ============================================
+   ALERTS
+   ============================================ */
+.alert {
+    padding: 1rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: #D1FAE5;
+    color: #065F46;
+    border: 2px solid var(--success-color);
+}
+
+.alert-error {
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 2px solid var(--error-color);
+}
+
+/* ============================================
+   TEXT CENTER
+   ============================================ */
+.text-center {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.text-center a {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* ============================================
+   WELCOME SECTION
+   ============================================ */
+.welcome-section {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: var(--surface);
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--border-color);
+}
+
+.welcome-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.welcome-section p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+/* ============================================
+   STATS
+   ============================================ */
+.stats {
+    display: flex;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.stat-card {
+    flex: 1;
+    background: var(--background);
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    border: 2px solid var(--border-color);
+}
+
+.stat-card h3 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-card p {
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   ACTIONS
+   ============================================ */
+.actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.actions .btn {
+    flex: 1;
+}
+
+/* ============================================
+   PROFILE CARD
+   ============================================ */
+.profile-card {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: var(--surface);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+}
+
+.profile-header {
+    padding: 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-light);
+}
+
+.profile-info h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.profile-info .email {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.profile-info .bio {
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* ============================================
+   PROFILE STATS
+   ============================================ */
+.profile-stats {
+    display: flex;
+    border-top: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.profile-stats .stat {
+    flex: 1;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.profile-stats .stat h3 {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.profile-stats .stat p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* ============================================
+   PROFILE ACTIONS
+   ============================================ */
+.profile-actions {
+    padding: 2rem;
+}
+
+.profile-actions .btn {
+    width: 100%;
+}
+
+/* ============================================
+   FORM ACTIONS
+   ============================================ */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.form-actions .btn {
+    flex: 1;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .nav-menu {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .stats {
+        flex-direction: column;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .login-box,
+    .register-box {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+/* Émojis décoratifs flottants */
+.login-box::before,
+.register-box::before {
+    content: '✨';
+    position: absolute;
+    top: -30px;
+    left: 20px;
+    font-size: 2rem;
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+.login-box::after,
+.register-box::after {
+    content: '🦕';
+    position: absolute;
+    bottom: -30px;
+    right: 20px;
+    font-size: 2rem;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}

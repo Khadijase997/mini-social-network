@@ -1,10 +1,8 @@
 package com.connecthub.socialnetwork.model;
 
-
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +10,7 @@ import java.time.LocalDateTime;
 public class User {
 
     @Id
-    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
+    @GeneratedValue
     private String id;
 
     private String name;
@@ -22,27 +20,17 @@ public class User {
     private String photoUrl;
     private LocalDateTime createdAt;
 
-    public User() {}
-
-    public User(String id, String name, String email, String password, String bio, String photoUrl, LocalDateTime createdAt) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.bio = bio;
-        this.photoUrl = photoUrl;
-        this.createdAt = createdAt;
+    public User() {
     }
 
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.bio = "";
-        this.photoUrl = "";
         this.createdAt = LocalDateTime.now();
     }
 
+    // Getters and Setters
     public String getId() {
         return id;
     }

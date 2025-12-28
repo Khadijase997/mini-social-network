@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - ConnectHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <h1 class="logo">ConnectHub</h1>
+        <ul class="nav-menu">
+            <li><a th:href="@{/home}">Accueil</a></li>
+            <li><a th:href="@{/profile}">Mon Profil</a></li>
+            <li><a th:href="@{/logout}">Déconnexion</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="welcome-section">
+        <h2>Bienvenue, <span th:text="${user.name}">Utilisateur</span> ! 👋</h2>
+        <p>Vous êtes connecté avec l'email : <strong th:text="${user.email}"></strong></p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3 th:text="${user.friendsCount}">0</h3>
+                <p>Amis</p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a th:href="@{/profile}" class="btn btn-primary">Voir mon profil</a>
+            <a th:href="@{/profile/edit}" class="btn btn-secondary">Modifier mon profil</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

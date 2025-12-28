@@ -1,6 +1,5 @@
 package com.connecthub.socialnetwork.dto;
 
-
 public class UserResponse {
 
     private String id;
@@ -10,17 +9,18 @@ public class UserResponse {
     private String photoUrl;
     private int friendsCount;
 
-    public UserResponse() {}
+    public UserResponse() {
+    }
 
-    public UserResponse(String id, String name, String email, String bio, String photoUrl, int friendsCount) {
+    public UserResponse(String id, String name, String email, String bio, String photoUrl) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.bio = bio;
         this.photoUrl = photoUrl;
-        this.friendsCount = friendsCount;
     }
 
+    // Getters and Setters
     public String getId() {
         return id;
     }

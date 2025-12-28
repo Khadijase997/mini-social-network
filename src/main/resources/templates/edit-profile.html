@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier le profil - ConnectHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <h1 class="logo">ConnectHub</h1>
+        <ul class="nav-menu">
+            <li><a th:href="@{/home}">Accueil</a></li>
+            <li><a th:href="@{/profile}">Mon Profil</a></li>
+            <li><a th:href="@{/logout}">Déconnexion</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="edit-profile-box">
+        <h2>Modifier mon profil</h2>
+
+        <form th:action="@{/profile/edit}" method="post">
+            <div class="form-group">
+                <label for="name">Nom complet</label>
+                <input type="text" id="name" name="name"
+                       th:value="${user.name}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Bio</label>
+                <textarea id="bio" name="bio" rows="4"
+                          placeholder="Parlez de vous..."
+                          th:text="${user.bio}"></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a th:href="@{/profile}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
