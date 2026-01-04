@@ -43,15 +43,14 @@ a:hover {
 }
 
 /* ============================================
-   AUTH PAGES - Login & Register avec background
+   AUTH PAGES - Login & Register avec background image
    ============================================ */
 body.auth-page {
-    background: linear-gradient(135deg,
-    #CCE3DE 0%,
-    #EAF4F4 25%,
-    #F6FFF8 50%,
-    #EAF4F4 75%,
-    #CCE3DE 100%);
+    background-image: url('/images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -60,179 +59,16 @@ body.auth-page {
     overflow: hidden;
 }
 
-/* Bulles décoratives flottantes */
+/* Overlay semi-transparent pour améliorer la lisibilité */
 body.auth-page::before {
     content: '';
     position: fixed;
-    top: -10%;
-    left: -10%;
-    width: 40%;
-    height: 40%;
-    background: radial-gradient(circle, rgba(164, 195, 178, 0.2) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
-}
-
-body.auth-page::after {
-    content: '';
-    position: fixed;
-    bottom: -10%;
-    right: -10%;
-    width: 50%;
-    height: 50%;
-    background: radial-gradient(circle, rgba(204, 227, 222, 0.3) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: float 8s ease-in-out infinite reverse;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translate(0, 0);
-    }
-    50% {
-        transform: translate(-20px, -20px);
-    }
-}/* ============================================
-   AUTH PAGES - Login & Register avec dégradé pastel
-   ============================================ */
-body.auth-page {
-    background: linear-gradient(135deg,
-    #CCE3DE 0%,
-    #EAF4F4 25%,
-    #F6FFF8 50%,
-    #EAF4F4 75%,
-    #CCE3DE 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Bulles décoratives flottantes */
-body.auth-page::before {
-    content: '';
-    position: fixed;
-    top: -10%;
-    left: -10%;
-    width: 40%;
-    height: 40%;
-    background: radial-gradient(circle, rgba(164, 195, 178, 0.2) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
-}
-
-body.auth-page::after {
-    content: '';
-    position: fixed;
-    bottom: -10%;
-    right: -10%;
-    width: 50%;
-    height: 50%;
-    background: radial-gradient(circle, rgba(204, 227, 222, 0.3) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: float 8s ease-in-out infinite reverse;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translate(0, 0);
-    }
-    50% {
-        transform: translate(-20px, -20px);
-    }
-}/* ============================================
-   AUTH PAGES - Login & Register avec dégradé pastel
-   ============================================ */
-body.auth-page {
-    background: linear-gradient(135deg,
-    #CCE3DE 0%,
-    #EAF4F4 25%,
-    #F6FFF8 50%,
-    #EAF4F4 75%,
-    #CCE3DE 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Bulles décoratives flottantes */
-body.auth-page::before {
-    content: '';
-    position: fixed;
-    top: -10%;
-    left: -10%;
-    width: 40%;
-    height: 40%;
-    background: radial-gradient(circle, rgba(164, 195, 178, 0.2) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
-}
-
-body.auth-page::after {
-    content: '';
-    position: fixed;
-    bottom: -10%;
-    right: -10%;
-    width: 50%;
-    height: 50%;
-    background: radial-gradient(circle, rgba(204, 227, 222, 0.3) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: float 8s ease-in-out infinite reverse;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translate(0, 0);
-    }
-    50% {
-        transform: translate(-20px, -20px);
-    }
-}/* ============================================
-   AUTH PAGES - Login & Register avec dégradé pastel
-   ============================================ */
-body.auth-page {
-    background: linear-gradient(135deg,
-    #CCE3DE 0%,
-    #EAF4F4 25%,
-    #F6FFF8 50%,
-    #EAF4F4 75%,
-    #CCE3DE 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Bulles décoratives flottantes */
-body.auth-page::before {
-    content: '';
-    position: fixed;
-    top: -10%;
-    left: -10%;
-    width: 40%;
-    height: 40%;
-    background: radial-gradient(circle, rgba(164, 195, 178, 0.2) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
-}
-
-body.auth-page::after {
-    content: '';
-    position: fixed;
-    bottom: -10%;
-    right: -10%;
-    width: 50%;
-    height: 50%;
-    background: radial-gradient(circle, rgba(204, 227, 222, 0.3) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: float 8s ease-in-out infinite reverse;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(246, 255, 248, 0.2);
+    z-index: 0;
 }
 
 @keyframes float {
@@ -243,6 +79,7 @@ body.auth-page::after {
         transform: translate(-20px, -20px);
     }
 }
+
 /* ============================================
    CONTAINER
    ============================================ */
@@ -301,8 +138,9 @@ body.auth-page::after {
    AUTH FORMS - Login & Register
    ============================================ */
 .login-box,
-
 .register-box {
+    position: relative;
+    z-index: 10;
     max-width: 450px;
     margin: 2rem auto;
     background: rgba(255, 255, 255, 0.95);
@@ -620,6 +458,41 @@ body.auth-page::after {
 }
 
 /* ============================================
+   ÉMOJIS DÉCORATIFS
+   ============================================ */
+.login-box::before,
+.register-box::before {
+    content: '✨';
+    position: absolute;
+    top: -30px;
+    left: 20px;
+    font-size: 2rem;
+    animation: sparkle 2s ease-in-out infinite;
+    z-index: 15;
+}
+
+.login-box::after,
+.register-box::after {
+    content: '🦕';
+    position: absolute;
+    bottom: -30px;
+    right: 20px;
+    font-size: 2rem;
+    animation: bounce 2s ease-in-out infinite;
+    z-index: 15;
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
@@ -661,35 +534,4 @@ body.auth-page::after {
         padding: 1.5rem;
         margin: 1rem;
     }
-}
-
-/* Émojis décoratifs flottants */
-.login-box::before,
-.register-box::before {
-    content: '✨';
-    position: absolute;
-    top: -30px;
-    left: 20px;
-    font-size: 2rem;
-    animation: sparkle 2s ease-in-out infinite;
-}
-
-.login-box::after,
-.register-box::after {
-    content: '🦕';
-    position: absolute;
-    bottom: -30px;
-    right: 20px;
-    font-size: 2rem;
-    animation: bounce 2s ease-in-out infinite;
-}
-
-@keyframes sparkle {
-    0%, 100% { opacity: 0.4; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.2); }
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
 }

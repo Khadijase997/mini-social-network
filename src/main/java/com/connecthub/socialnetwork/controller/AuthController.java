@@ -28,10 +28,6 @@ public class AuthController {
     }
 
     // Page d'accueil (redirection vers login)
-    @GetMapping("/")
-    public String home() {
-        return "redirect:/login";
-    }
 
     // Afficher le formulaire d'inscription
     @GetMapping("/register")

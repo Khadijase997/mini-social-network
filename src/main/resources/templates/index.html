@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConnectHub - Mini Réseau Social</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6B9080;
+            --primary-light: #A4C3B2;
+            --background: #EAF4F4;
+            --background-light: #CCE3DE;
+            --surface: #F6FFF8;
+            --text-dark: #2F4F4F;
+            --text-gray: #5F8575;
+            --border: #A4C3B2;
+        }
+
+        body {
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+            background-image: url('/images/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: var(--text-dark);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-20px, -20px); }
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(107, 144, 128, 0.15);
+            border-bottom: 3px solid var(--primary-light);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Comic Neue', cursive;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+            font-size: 1rem;
+            font-family: 'Comic Neue', cursive;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(107, 144, 128, 0.3);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: 3px solid var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(107, 144, 128, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            text-shadow: 2px 2px 4px rgba(107, 144, 128, 0.1);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 400;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero {
+            padding: 1.2rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 30px;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--primary);
+            border: 3px solid var(--primary);
+        }
+
+        .btn-white:hover {
+            background: var(--surface);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(107, 144, 128, 0.2);
+        }
+
+        /* Features Section */
+        .features {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 6rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(107, 144, 128, 0.15);
+            transition: all 0.3s ease;
+            border: 3px solid var(--primary-light);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(107, 144, 128, 0.25);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .feature-card p {
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* How it Works */
+        .how-it-works {
+            background: rgba(234, 244, 244, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 6rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 20px rgba(107, 144, 128, 0.3);
+            border: 4px solid var(--primary-light);
+        }
+
+        .step h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .step p {
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 6rem 2rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta p {
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+            opacity: 0.95;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 3rem 2rem 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p, .footer-section a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--surface);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .cta h2 {
+                font-size: 2rem;
+            }
+
+            .nav-buttons {
+                gap: 0.5rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="logo">🦕 ConnectHub</div>
+    <div class="nav-buttons">
+        <a href="/login" class="btn btn-outline">Se connecter</a>
+        <a href="/register" class="btn btn-primary">S'inscrire</a>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Connectez-vous avec<br>vos amis 🌿</h1>
+        <p>Découvrez de nouvelles personnes grâce à nos recommandations intelligentes basées sur vos connexions communes</p>
+        <div class="hero-buttons">
+            <a href="/register" class="btn btn-hero btn-primary">Commencer gratuitement</a>
+            <a href="#features" class="btn btn-hero btn-white">En savoir plus</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="section-title">
+            <h2>✨ Fonctionnalités</h2>
+            <p>Tout ce dont vous avez besoin pour développer votre réseau</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Recherche d'utilisateurs</h3>
+                <p>Trouvez facilement des personnes que vous connaissez grâce à notre moteur de recherche puissant</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Système d'amitié</h3>
+                <p>Envoyez et recevez des demandes d'amis, gérez vos connexions en toute simplicité</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>Recommandations intelligentes</h3>
+                <p>Notre algorithme vous suggère des amis basés sur vos connexions communes et vos intérêts</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👤</div>
+                <h3>Profil personnalisé</h3>
+                <p>Créez votre profil unique avec photo, bio et informations personnelles</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Sécurité garantie</h3>
+                <p>Vos données sont protégées avec les dernières technologies de cryptage</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Statistiques</h3>
+                <p>Visualisez votre réseau et suivez la croissance de vos connexions</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How it Works -->
+<section class="how-it-works">
+    <div class="container">
+        <div class="section-title">
+            <h2>🚀 Comment ça marche ?</h2>
+            <p>Trois étapes simples pour commencer</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Inscrivez-vous</h3>
+                <p>Créez votre compte en quelques secondes avec votre email</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Ajoutez des amis</h3>
+                <p>Recherchez et connectez-vous avec vos amis existants</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Découvrez</h3>
+                <p>Recevez des recommandations d'amis basées sur vos connexions</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+    <div class="container">
+        <h2>🌟 Prêt à commencer ?</h2>
+        <p>Rejoignez des milliers d'utilisateurs et développez votre réseau dès aujourd'hui</p>
+        <a href="/register" class="btn btn-hero btn-white">Créer mon compte gratuitement</a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-section">
+            <h3>🦕 ConnectHub</h3>
+            <p>Mini réseau social avec recommandations d'amis intelligentes</p>
+        </div>
+        <div class="footer-section">
+            <h3>Liens rapides</h3>
+            <a href="/">Accueil</a>
+            <a href="#features">Fonctionnalités</a>
+            <a href="/login">Connexion</a>
+            <a href="/register">Inscription</a>
+        </div>
+        <div class="footer-section">
+            <h3>Légal</h3>
+            <a href="#">Conditions d'utilisation</a>
+            <a href="#">Politique de confidentialité</a>
+            <a href="#">Mentions légales</a>
+        </div>
+        <div class="footer-section">
+            <h3>Projet académique</h3>
+            <p>Réalisé par:<br>
+                Khadija Sekkat<br>
+                Aya Moudatir<br>
+                Yassine Draiss</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2024 ConnectHub. Tous droits réservés. 🌿</p>
+    </div>
+</footer>
+</body>
+</html>
