@@ -3,9 +3,15 @@ package com.connecthub.socialnetwork.model;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
-
+import org.springframework.data.neo4j.core.schema.Relationship;
+import java.util.HashSet;
+import java.util.Set;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Node("User")
 public class User {
 
@@ -20,6 +26,19 @@ public class User {
     private String photoUrl;
     private LocalDateTime createdAt;
 
+    // Amis (relation bidirectionnelle)
+    @Relationship(type = "FRIENDS_WITH")
+    private Set<User> friends = new HashSet<>();
+
+    // Demandes d'amis envoyées
+    @Relationship(type = "FRIEND_REQUEST", direction = Relationship.Direction.OUTGOING)
+    private Set<User> sentFriendRequests = new HashSet<>();
+
+    // Demandes d'amis reçues
+    @Relationship(type = "FRIEND_REQUEST", direction = Relationship.Direction.INCOMING)
+    private Set<User> receivedFriendRequests = new HashSet<>();
+
+
     public User() {
     }
 
@@ -30,60 +49,5 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public String getPhotoUrl() {
-        return photoUrl;
-    }
-
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }

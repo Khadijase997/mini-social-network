@@ -45,6 +45,18 @@ public class UserService {
     public Optional<User> findById(String id) {
         return userRepository.findById(id);
     }
+    // NOUVELLE MÉTHODE - Retourne directement l'utilisateur (pas Optional)
+    public User getUserById(String userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable avec l'ID: " + userId));
+    }
+
+    // NOUVELLE MÉTHODE - Retourne directement l'utilisateur par email
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable avec l'email: " + email));
+    }
+
 
     public User updateUser(User user) {
         return userRepository.save(user);
