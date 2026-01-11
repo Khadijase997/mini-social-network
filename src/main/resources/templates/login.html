@@ -1,54 +1,506 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - ConnectHub</title>
+    <title>ConnectHub - Connexion</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body class="auth-page">
-<div class="container">
-    <div class="login-box">
-        <h1>ConnectHub</h1>
-        <h2>Connexion</h2>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        <!-- Message de succès (après inscription) -->
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5d5e8 0%, #e8d5f5 50%, #d5e8f5 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .shape1 {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            top: 10%;
+            left: 10%;
+        }
+
+        .shape2 {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            top: 60%;
+            left: 80%;
+            animation-delay: 2s;
+        }
+
+        .shape3 {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+            top: 80%;
+            left: 15%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        .container {
+            display: flex;
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(167, 139, 250, 0.3);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-section {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: #f7fafc;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #a78bfa;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #a0aec0;
+            font-size: 18px;
+            user-select: none;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #805ad5;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .forgot-password:hover {
+            color: #6b46c1;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #805ad5;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .signup-link a:hover {
+            color: #6b46c1;
+        }
+
+        .illustration-section {
+            flex: 1;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .floating-icons {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .icon {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            animation: floatIcon 6s ease-in-out infinite;
+        }
+
+        .icon1 { top: 10%; left: 10%; }
+        .icon2 { top: 20%; right: 15%; animation-delay: 2s; }
+        .icon3 { bottom: 15%; left: 15%; animation-delay: 4s; }
+        .icon4 { bottom: 25%; right: 10%; animation-delay: 1s; }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
+        }
+
+        .character {
+            width: 350px;
+            height: 400px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animations pour l'avatar */
+        .avatar-animated {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+            animation: floatAndBounce 4s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+
+        @keyframes floatAndBounce {
+            0%, 100% {
+                transform: translateY(0px) scale(1) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-15px) scale(1.02) rotate(-2deg);
+            }
+            50% {
+                transform: translateY(-25px) scale(1.03) rotate(2deg);
+            }
+            75% {
+                transform: translateY(-15px) scale(1.02) rotate(-1deg);
+            }
+        }
+
+        .avatar-animated:hover {
+            animation-play-state: paused;
+            transform: scale(1.1) translateY(-10px) rotate(5deg) !important;
+            filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.4));
+        }
+
+        .illustration-text {
+            margin-top: 40px;
+            text-align: center;
+            color: white;
+            z-index: 1;
+        }
+
+        .illustration-text h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .illustration-text p {
+            font-size: 16px;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 968px) {
+            .container { flex-direction: column; }
+            .illustration-section { padding: 40px; min-height: 400px; }
+            .character { width: 250px; height: 250px; }
+            .character-body { width: 140px; height: 160px; bottom: 60px; }
+            .character-head { width: 100px; height: 110px; top: 50px; }
+            .character-hair { width: 120px; height: 70px; top: 40px; }
+            .character-laptop { width: 80px; height: 50px; bottom: 80px; }
+            .laptop-screen { width: 70px; height: 35px; }
+        }
+
+        @media (max-width: 576px) {
+            .login-section { padding: 40px 30px; }
+            h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+<div class="shape shape1"></div>
+<div class="shape shape2"></div>
+<div class="shape shape3"></div>
+
+<div class="container">
+    <div class="login-section">
+        <div class="logo">
+            <div class="logo-icon">C</div>
+            <span class="logo-text">ConnectHub</span>
+        </div>
+
+        <h1>Bienvenue !</h1>
+        <p class="subtitle">Connectez-vous pour retrouver vos amis</p>
+
+        <!-- Message de succès après inscription -->
         <div th:if="${successMessage}" class="alert alert-success">
-            <p th:text="${successMessage}"></p>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- Message d'erreur de connexion -->
+        <div th:if="${param.error}" class="alert alert-error">
+            ❌ Email ou mot de passe incorrect
         </div>
 
         <!-- Message de déconnexion -->
-        <div th:if="${param.logout}" class="alert alert-success">
-            <p>Vous avez été déconnecté avec succès</p>
+        <div th:if="${param.logout}" class="alert alert-info">
+            ✅ Vous avez été déconnecté avec succès
         </div>
 
-        <!-- Message d'erreur -->
-        <div th:if="${param.error}" class="alert alert-error">
-            <p>Email ou mot de passe incorrect</p>
-        </div>
-
-        <!-- Formulaire de connexion -->
         <form th:action="@{/login}" method="post">
             <div class="form-group">
-                <label for="username">Email</label>
-                <input type="email" id="username" name="username" required
-                       placeholder="votre@email.com">
+                <label for="username">Adresse email</label>
+                <input type="text"
+                       id="username"
+                       name="username"
+                       placeholder="votre@email.com"
+                       required
+                       autofocus>
             </div>
 
             <div class="form-group">
                 <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" required
-                       placeholder="••••••••">
+                <div class="password-group">
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="••••••••"
+                           required>
+                    <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">Se connecter</button>
+            <div class="form-footer">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember-me">
+                    <span>Se souvenir de moi</span>
+                </label>
+                <a href="#" class="forgot-password">Mot de passe oublié?</a>
+            </div>
+
+            <button type="submit" class="submit-btn">Se connecter</button>
         </form>
 
-        <p class="text-center">
-            Pas encore de compte ?
-            <a th:href="@{/register}">S'inscrire</a>
-        </p>
+        <div class="signup-link">
+            Pas encore de compte ? <a th:href="@{/register}">S'inscrire</a>
+        </div>
+    </div>
+
+    <div class="illustration-section">
+        <div class="floating-icons">
+            <div class="icon icon1"></div>
+            <div class="icon icon2"></div>
+            <div class="icon icon3"></div>
+            <div class="icon icon4"></div>
+        </div>
+
+        <div class="character">
+            <img th:src="@{/images/avatar.jpg}"
+                 alt="Avatar Ready Player Me"
+                 class="avatar-animated">
+        </div>
+
+        <div class="illustration-text">
+            <h2>Connectez-vous avec vos amis</h2>
+            <p>Découvrez de nouvelles personnes et restez en contact avec ceux qui comptent pour vous</p>
+        </div>
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.querySelector('.toggle-password');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.textContent = '🔒';
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.textContent = '👁️';
+        }
+    }
+</script>
 </body>
 </html>
