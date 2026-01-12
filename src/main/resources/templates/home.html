@@ -1,75 +1,143 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <title>ConnectHub - Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accueil - ConnectHub</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/HERO_CSS/hero.css">
+
+    <style>
+        .feed {
+            max-width: 700px;
+            margin: 40px auto;
+        }
+
+        .post-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .post-actions {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #764ba2;
+            cursor: pointer;
+        }
+
+        .post-actions:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
+
 <body>
 
+<!-- ================= NAVBAR ================= -->
 <nav class="navbar">
     <div class="nav-container">
-        <h1 class="logo">ConnectHub</h1>
-        <ul class="nav-menu">
-            <li><a th:href="@{/home}">Accueil</a></li>
-            <li><a th:href="@{/search}">Rechercher</a></li>
-            <li>
-                <a th:href="@{/friends}">
-                    Amis (<span th:text="${user.friendsCount}">0</span>)
-                </a>
-            </li>
-            <li><a th:href="@{/profile}">Mon Profil</a></li>
-            <li><a th:href="@{/logout}">Déconnexion</a></li>
-        </ul>
+        <a href="/" class="logo">
+            <div class="logo-icon">C</div>
+            <span class="logo-text">ConnectHub</span>
+        </a>
+
+        <div class="nav-menu">
+            <a href="/profile" class="nav-link">Mon profil</a>
+            <a href="/friends" class="nav-link">Amis</a>
+            <a href="/search" class="nav-link">Rechercher</a>
+        </div>
+
+        <div class="user-menu">
+            <form th:action="@{/logout}" method="post">
+                <button class="logout-btn">Déconnexion</button>
+            </form>
+        </div>
     </div>
 </nav>
 
+<!-- ================= WELCOME ================= -->
 <div class="container">
     <div class="welcome-section">
 
         <h2>
             Bienvenue,
-            <span th:text="${user.name}">Utilisateur</span> 👋
+            <span th:text="${username}">Utilisateur</span> 👋
         </h2>
 
         <p>
-            Vous êtes connecté avec l'email :
-            <strong th:text="${user.email}">email@example.com</strong>
+            Voici les dernières publications de vos amis
         </p>
-
-        <!-- STATISTIQUES -->
-        <div class="stats">
-            <div class="stat-card">
-                <h3 th:text="${user.friendsCount}">0</h3>
-                <p>Amis</p>
-            </div>
-        </div>
-
-        <!-- MESSAGE SI PAS D'AMIS -->
-        <div class="no-friends-message" th:if="${user.friendsCount == 0}">
-            <h3>🔍 Commencez par chercher des amis !</h3>
-            <p>
-                Vous n'avez pas encore d'amis.
-                Recherchez des personnes et commencez à construire votre réseau.
-            </p>
-            <a th:href="@{/search}" class="btn btn-primary">
-                🔍 Rechercher des personnes
-            </a>
-        </div>
-
-        <!-- ACTIONS -->
-        <div class="actions">
-            <a th:href="@{/search}" class="btn btn-primary">
-                🔍 Rechercher des amis
-            </a>
-            <a th:href="@{/profile/edit}" class="btn btn-secondary">
-                ✏️ Modifier mon profil
-            </a>
-        </div>
 
     </div>
 </div>
 
+<!-- ================= FEED ================= -->
+<section class="feed">
+
+    <h3>📰 Fil d’actualité</h3>
+
+    <div th:if="${posts.size() == 0}">
+        <p>Aucun post pour le moment.</p>
+    </div>
+
+    <div th:each="post : ${posts}" class="post-card">
+
+        <div class="post-header">
+            <strong th:text="${post.author.name}">Nom</strong>
+            <span th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">
+                date
+            </span>
+        </div>
+
+        <p th:text="${post.content}">
+            Contenu du post
+        </p>
+
+        <div class="post-actions">
+            ❤️ J’aime
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= CREATE POST ================= -->
+<div class="post-card">
+    <form th:action="@{/posts}" method="post">
+        <textarea name="content"
+                  placeholder="Quoi de neuf ?"
+                  required
+                  style="width:100%;min-height:80px;
+                         border-radius:12px;padding:12px;
+                         border:1px solid #ddd;resize:none;"></textarea>
+
+        <button type="submit"
+                style="margin-top:10px;
+                       padding:10px 20px;
+                       border:none;
+                       border-radius:10px;
+                       background:linear-gradient(135deg,#667eea,#764ba2);
+                       color:white;
+                       font-weight:600;
+                       cursor:pointer;">
+            Publier
+        </button>
+    </form>
+</div>
 </body>
 </html>

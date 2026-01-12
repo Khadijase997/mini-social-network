@@ -35,64 +35,62 @@ public class DataImportService {
     }
 
     public void importUsersFromCSV(int maxUsers) {
+
         try {
-            InputStream inputStream = getClass().getClassLoader()
+            InputStream inputStream = getClass()
+                    .getClassLoader()
                     .getResourceAsStream("data/SocialMediaUsersDataset.csv");
 
             if (inputStream == null) {
-                System.out.println("❌ Fichier CSV non trouvé dans resources/data/");
+                System.out.println("❌ Fichier CSV non trouvé");
                 return;
             }
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-            String line = reader.readLine(); // Skip header
+            // skip header
+            reader.readLine();
 
             int count = 0;
             Random random = new Random();
 
-            System.out.println("🚀 Début de l'importation des utilisateurs...");
+            System.out.println("🚀 Import utilisateurs en cours...");
 
+            String line;
             while ((line = reader.readLine()) != null && count < maxUsers) {
-                try {
-                    String[] parts = line.split(",");
 
-                    if (parts.length >= 2) {
-                        String userId = parts[0].trim();
-                        String name = parts[1].trim();
+                String[] parts = line.split(",");
 
-                        String email = generateEmail(name, userId);
+                if (parts.length < 2) continue;
 
-                        if (userRepository.findByEmail(email).isPresent()) {
-                            continue;
-                        }
+                String userId = parts[0].trim();
+                String name = parts[1].trim();
 
-                        User user = new User();
-                        user.setName(name);
-                        user.setEmail(email);
-                        user.setPassword("Password123!");  // Sans hash pour l'instant
-                        user.setBio(BIOS[random.nextInt(BIOS.length)]);
-                        user.setPhotoUrl("https://ui-avatars.com/api/?name=" +
-                                name.replace(" ", "+") + "&size=200");
-                        user.setCreatedAt(LocalDateTime.now());
+                String email = generateEmail(name, userId);
 
-                        userRepository.save(user);
-                        count++;
-
-                        if (count % 50 == 0) {
-                            System.out.println("✅ " + count + " utilisateurs importés...");
-                        }
-                    }
-                } catch (Exception e) {
+                if (userRepository.findByEmail(email).isPresent()) {
                     continue;
                 }
+
+                User user = new User();
+                user.setName(name);
+                user.setEmail(email);
+                user.setPassword("Password123!");
+                user.setBio(BIOS[random.nextInt(BIOS.length)]);
+                user.setProfileImage(
+                        "https://ui-avatars.com/api/?name=" +
+                                name.replace(" ", "+") + "&size=200"
+                );
+                user.setCreatedAt(LocalDateTime.now());
+
+                userRepository.save(user);
+                count++;
             }
 
             reader.close();
-            System.out.println("🎉 Importation terminée ! Total : " + count + " utilisateurs.");
+            System.out.println("🎉 Import terminé : " + count + " utilisateurs");
 
         } catch (Exception e) {
-            System.out.println("❌ Erreur : " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -68,7 +68,8 @@ public class UserService {
                 user.getName(),
                 user.getEmail(),
                 user.getBio(),
-                user.getPhotoUrl()
+                user.getProfileImage()
+
         );
 
         int friendsCount = userRepository.countFriends(user.getId());

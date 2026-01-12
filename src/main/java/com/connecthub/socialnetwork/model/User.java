@@ -23,8 +23,8 @@ public class User {
     private String email;
     private String password;
     private String bio;
-    private String photoUrl;
     private LocalDateTime createdAt;
+    private String profileImage;
 
     // Amis (relation bidirectionnelle)
     @Relationship(type = "FRIENDS_WITH")

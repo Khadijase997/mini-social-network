@@ -334,7 +334,8 @@
 <body>
 <nav class="navbar">
     <div class="nav-container">
-        <a href="#" class="logo">
+
+        <a th:href="@{/home}" class="logo">
             <div class="logo-icon">C</div>
             <span class="logo-text">ConnectHub</span>
         </a>
@@ -345,12 +346,13 @@
             <a href="#" class="nav-link">Rechercher</a>
         </div>
 
-        <div class="user-menu">
-            <div class="user-avatar" th:text="${user != null ? user.name.substring(0,2).toUpperCase() : 'JD'}"></div>
-            <form th:action="@{/logout}" method="post" style="display: inline;">
-                <button type="submit" class="logout-btn">Déconnexion</button>
-            </form>
+        <div class="user-avatar">
+            <img th:if="${user.profileImage != null}"
+                 th:src="${user.profileImage}">
+            <span th:if="${user.profileImage == null}"
+                  th:text="${user.name.substring(0,2).toUpperCase()}"></span>
         </div>
+
     </div>
 </nav>
 
@@ -363,7 +365,14 @@
     <div class="profile-header">
         <div class="profile-banner"></div>
         <div class="profile-content">
-            <div class="profile-avatar-large" th:text="${user != null ? user.name.substring(0,2).toUpperCase() : 'JD'}">
+            <div class="profile-avatar-large">
+                <img th:if="${user.profileImage != null}"
+                     th:src="${user.profileImage}"
+                     alt="Photo de profil"
+                     style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+
+                <span th:if="${user.profileImage == null}"
+                      th:text="${user.name.substring(0,2).toUpperCase()}"></span>
             </div>
 
             <div class="profile-info">
@@ -421,6 +430,51 @@
             </div>
         </div>
     </div>
+    <div class="card" style="margin-bottom:30px;">
+        <h2 class="card-title">✍️ Créer une publication</h2>
+
+        <form th:action="@{/posts}" method="post">
+        <textarea name="content"
+                  placeholder="À quoi pensez-vous ?"
+                  required
+                  style="
+                      width:100%;
+                      min-height:120px;
+                      padding:15px;
+                      border-radius:12px;
+                      border:1px solid #e2e8f0;
+                      resize:none;
+                      font-size:15px;
+                  "></textarea>
+
+            <button type="submit"
+                    class="btn btn-primary"
+                    style="margin-top:15px;">
+                Publier
+            </button>
+        </form>
+    </div>
+    <div class="card">
+        <h2 class="card-title">📝 Mes publications</h2>
+
+        <div th:if="${myPosts.size() == 0}">
+            <p style="color:#718096; text-align:center;">
+                Aucune publication pour le moment.
+            </p>
+        </div>
+
+        <div th:each="post : ${myPosts}"
+             style="padding:15px; border-bottom:1px solid #eee;">
+
+            <p th:text="${post.content}"
+               style="margin-bottom:8px;"></p>
+
+            <small style="color:#718096;"
+                   th:text="${#temporals.format(post.createdAt,'dd/MM/yyyy HH:mm')}">
+            </small>
+        </div>
+    </div>
 </div>
+
 </body>
 </html>

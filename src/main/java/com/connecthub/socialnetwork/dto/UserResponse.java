@@ -6,21 +6,22 @@ public class UserResponse {
     private String name;
     private String email;
     private String bio;
-    private String photoUrl;
     private int friendsCount;
+    private String profileImage;
 
     public UserResponse() {
     }
 
-    public UserResponse(String id, String name, String email, String bio, String photoUrl) {
+    public UserResponse(String id, String name, String email, String bio, String profileImage) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.bio = bio;
-        this.photoUrl = photoUrl;
+        this.profileImage = profileImage;
     }
 
-    // Getters and Setters
+    // ===== GETTERS & SETTERS =====
+
     public String getId() {
         return id;
     }
@@ -53,19 +54,19 @@ public class UserResponse {
         this.bio = bio;
     }
 
-    public String getPhotoUrl() {
-        return photoUrl;
-    }
-
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
-    }
-
     public int getFriendsCount() {
         return friendsCount;
     }
 
     public void setFriendsCount(int friendsCount) {
         this.friendsCount = friendsCount;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }
