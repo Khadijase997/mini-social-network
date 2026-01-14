@@ -8,161 +8,246 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/HERO_CSS/hero.css">
     <style>
-        .search-container {
-            max-width: 1000px;
-            margin: 100px auto 40px;
-            padding: 0 20px;
+        /* =====================
+           RESET + BODY
+           ===================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5d5e8 0%, #e8d5f5 50%, #d5e8f5 100%);
+            min-height: 100vh;
+        }
+
+        /* =====================
+           CONTAINER
+           ===================== */
+        .search-container {
+            max-width: 1200px;
+            margin: 120px auto 50px;
+            padding: 0 30px;
+        }
+
+        /* =====================
+           TITLE
+           ===================== */
+        .search-container h1 {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* =====================
+           SEARCH BOX
+           ===================== */
         .search-box {
+<<<<<<< HEAD
             background: white;
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             margin-bottom: 30px;
+=======
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 10px 40px rgba(167, 139, 250, 0.2);
+            margin-bottom: 35px;
+>>>>>>> 5315d540891309ef92e09992532aababd8dd6e07
         }
 
         .search-form {
             display: flex;
-            gap: 10px;
+            gap: 15px;
         }
 
         .search-input {
             flex: 1;
-            padding: 15px;
+            padding: 15px 18px;
+            border-radius: 14px;
             border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 16px;
-            font-family: 'Inter', sans-serif;
+            font-size: 15px;
         }
 
         .search-input:focus {
             outline: none;
-            border-color: #764ba2;
+            border-color: #805ad5;
+            box-shadow: 0 0 0 2px rgba(128, 90, 213, 0.2);
         }
 
         .search-btn {
-            padding: 15px 30px;
+            padding: 14px 30px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .search-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 20px;
-            font-size: 14px;
             cursor: pointer;
             transition: all 0.3s;
         }
 
-        .filter-btn:hover {
-            border-color: #764ba2;
-            color: #764ba2;
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
         }
 
-        .results-section {
+        /* =====================
+           FILTER
+           ===================== */
+        .filter-buttons {
+            margin-top: 18px;
+        }
+
+        .filter-btn {
+            padding: 8px 18px;
+            border-radius: 20px;
             background: white;
+<<<<<<< HEAD
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+=======
+            border: 2px solid #e2e8f0;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #4a5568;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            color: #805ad5;
+            border-color: #805ad5;
+        }
+
+        /* =====================
+           RESULTS CARD
+           ===================== */
+        .results-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 10px 40px rgba(167, 139, 250, 0.2);
+>>>>>>> 5315d540891309ef92e09992532aababd8dd6e07
         }
 
         .results-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
+            margin-bottom: 25px;
             color: #2d3748;
-            margin-bottom: 20px;
         }
 
+        /* =====================
+           GRID
+           ===================== */
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
         }
 
+        /* =====================
+           USER CARD
+           ===================== */
         .user-card {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 12px;
-            transition: transform 0.3s, box-shadow 0.3s;
+            background: white;
+            border-radius: 20px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(167, 139, 250, 0.15);
+            transition: all 0.35s;
         }
 
         .user-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+            transform: translateY(-6px);
+            box-shadow: 0 14px 40px rgba(167, 139, 250, 0.3);
         }
 
+        /* =====================
+           AVATAR
+           ===================== */
         .user-avatar {
-            width: 60px;
-            height: 60px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 24px;
-            margin: 0 auto 15px;
+            margin: 0 auto 14px;
         }
 
+        /* =====================
+           USER INFO
+           ===================== */
         .user-name {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             color: #2d3748;
-            text-align: center;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .user-email {
             font-size: 13px;
             color: #718096;
-            text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .user-bio {
             font-size: 14px;
             color: #4a5568;
-            text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
             line-height: 1.5;
         }
 
+        /* =====================
+           INTERESTS
+           ===================== */
+        .interests-tags {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .interest-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* =====================
+           ACTIONS
+           ===================== */
         .user-actions {
             display: flex;
-            gap: 10px;
             justify-content: center;
+            gap: 10px;
         }
 
         .btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 12px;
             font-size: 13px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
             border: none;
-            text-decoration: none;
-            display: inline-block;
         }
 
         .btn-primary {
@@ -171,10 +256,14 @@
         }
 
         .btn-secondary {
-            background: #e2e8f0;
+            background: white;
+            border: 2px solid #e2e8f0;
             color: #4a5568;
         }
 
+        /* =====================
+           EMPTY STATE
+           ===================== */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -185,24 +274,8 @@
             font-size: 64px;
             margin-bottom: 20px;
         }
-
-        .interests-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-
-        .interest-tag {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 500;
-        }
     </style>
+
 </head>
 
 <body>
