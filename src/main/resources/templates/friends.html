@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>ConnectHub - Amis</title>
@@ -33,7 +34,7 @@
             background: white;
             padding: 20px;
             border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
@@ -184,232 +185,249 @@
         }
     </style>
 </head>
+
 <body>
 
-<!-- ================= NAVBAR ================= -->
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+    <!-- ================= NAVBAR ================= -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<!-- ================= FRIENDS PAGE ================= -->
-<div class="friends-container">
-    <h1 style="font-size: 32px; font-weight: 700; color: #2d3748; margin-bottom: 30px;">
-        👥 Gestion des amis
-    </h1>
+    <!-- ================= FRIENDS PAGE ================= -->
+    <div class="friends-container">
+        <h1 style="font-size: 32px; font-weight: 700; color: #2d3748; margin-bottom: 30px;">
+            👥 Gestion des amis
+        </h1>
 
-    <!-- Tabs -->
-    <div class="tabs">
-        <button class="tab active" onclick="showTab('friends')">Mes amis</button>
-        <button class="tab" onclick="showTab('received')">Demandes reçues</button>
-        <button class="tab" onclick="showTab('sent')">Demandes envoyées</button>
-        <button class="tab" onclick="showTab('recommendations')">Recommandations</button>
-    </div>
-
-    <!-- Tab: Mes amis -->
-    <div id="tab-friends" class="tab-content active">
-        <h2 class="section-title">Mes amis (<span th:text="${friends.size()}">0</span>)</h2>
-        <div th:if="${friends.size() == 0}" class="empty-state">
-            <div class="empty-state-icon">👤</div>
-            <p>Vous n'avez pas encore d'amis. Consultez les recommandations pour en ajouter !</p>
+        <div th:if="${error}"
+            style="background-color: #FED7D7; color: #C53030; padding: 1rem; border-radius: 0.5rem; margin-bottom: 20px; border: 1px solid #F56565;">
+            <strong style="font-weight: bold;">Erreur :</strong>
+            <span th:text="${error}"></span>
         </div>
-        <div class="friends-grid">
-            <div th:each="friend : ${friends}" class="friend-card">
-                <div class="friend-avatar">
-                    <span th:text="${friend.name.substring(0, 2).toUpperCase()}">AB</span>
-                </div>
-                <div class="friend-name" th:text="${friend.name}">Nom</div>
-                <div class="friend-email" th:text="${friend.email}">email@example.com</div>
-                <div th:if="${friend.bio != null}" class="friend-bio" th:text="${friend.bio}">Bio</div>
-                <div th:if="${friend.interests != null and !friend.interests.isEmpty()}" class="interests-tags">
-                    <span th:each="interest : ${friend.interests}" class="interest-tag" th:text="${interest}">Intérêt</span>
-                </div>
-                <div class="friend-actions">
-                    <a th:href="@{/profile/{id}(id=${friend.id})}" class="btn btn-primary">Voir profil</a>
-                    <button class="btn btn-danger" th:onclick="'removeFriend(\'' + ${friend.id} + '\')'">Retirer</button>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('friends')">Mes amis</button>
+            <button class="tab" onclick="showTab('received')">Demandes reçues</button>
+            <button class="tab" onclick="showTab('sent')">Demandes envoyées</button>
+            <button class="tab" onclick="showTab('recommendations')">Recommandations</button>
+        </div>
+
+        <!-- Tab: Mes amis -->
+        <div id="tab-friends" class="tab-content active">
+            <h2 class="section-title">Mes amis (<span th:text="${friends.size()}">0</span>)</h2>
+            <div th:if="${friends.size() == 0}" class="empty-state">
+                <div class="empty-state-icon">👤</div>
+                <p>Vous n'avez pas encore d'amis. Consultez les recommandations pour en ajouter !</p>
+            </div>
+            <div class="friends-grid">
+                <div th:each="friend : ${friends}" class="friend-card">
+                    <div class="friend-avatar">
+                        <span
+                            th:text="${friend.name != null ? (friend.name.length() > 1 ? friend.name.substring(0,2).toUpperCase() : friend.name.toUpperCase()) : '??'}">AB</span>
+                    </div>
+                    <div class="friend-name" th:text="${friend.name}">Nom</div>
+                    <div class="friend-email" th:text="${friend.email}">email@example.com</div>
+                    <div th:if="${friend.bio != null}" class="friend-bio" th:text="${friend.bio}">Bio</div>
+                    <div th:if="${friend.interests != null and !friend.interests.isEmpty()}" class="interests-tags">
+                        <span th:each="interest : ${friend.interests}" class="interest-tag"
+                            th:text="${interest}">Intérêt</span>
+                    </div>
+                    <div class="friend-actions">
+                        <a th:href="@{/profile/{id}(id=${friend.id})}" class="btn btn-primary">Voir profil</a>
+                        <button class="btn btn-danger" th:attr="data-friend-id=${friend.id}"
+                            onclick="removeFriend(this.dataset.friendId)">Retirer</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Tab: Demandes reçues -->
-    <div id="tab-received" class="tab-content">
-        <h2 class="section-title">Demandes reçues (<span th:text="${receivedRequests.size()}">0</span>)</h2>
-        <div th:if="${receivedRequests.size() == 0}" class="empty-state">
-            <div class="empty-state-icon">📬</div>
-            <p>Aucune demande d'amitié en attente</p>
-        </div>
-        <div class="friends-grid">
-            <div th:each="request : ${receivedRequests}" class="friend-card">
-                <div class="friend-avatar">
-                    <span th:text="${request.name.substring(0, 2).toUpperCase()}">AB</span>
-                </div>
-                <div class="friend-name" th:text="${request.name}">Nom</div>
-                <div class="friend-email" th:text="${request.email}">email@example.com</div>
-                <div th:if="${request.bio != null}" class="friend-bio" th:text="${request.bio}">Bio</div>
-                <div class="friend-actions">
-                    <button class="btn btn-success" th:onclick="'acceptRequest(\'' + ${request.id} + '\')'">Accepter</button>
-                    <button class="btn btn-danger" th:onclick="'rejectRequest(\'' + ${request.id} + '\')'">Refuser</button>
-                    <a th:href="@{/profile/{id}(id=${request.id})}" class="btn btn-secondary">Voir profil</a>
+        <!-- Tab: Demandes reçues -->
+        <div id="tab-received" class="tab-content">
+            <h2 class="section-title">Demandes reçues (<span th:text="${receivedRequests.size()}">0</span>)</h2>
+            <div th:if="${receivedRequests.size() == 0}" class="empty-state">
+                <div class="empty-state-icon">📬</div>
+                <p>Aucune demande d'amitié en attente</p>
+            </div>
+            <div class="friends-grid">
+                <div th:each="request : ${receivedRequests}" class="friend-card">
+                    <div class="friend-avatar">
+                        <span
+                            th:text="${request.name != null ? (request.name.length() > 1 ? request.name.substring(0,2).toUpperCase() : request.name.toUpperCase()) : '??'}">AB</span>
+                    </div>
+                    <div class="friend-name" th:text="${request.name}">Nom</div>
+                    <div class="friend-email" th:text="${request.email}">email@example.com</div>
+                    <div th:if="${request.bio != null}" class="friend-bio" th:text="${request.bio}">Bio</div>
+                    <div class="friend-actions">
+                        <button class="btn btn-success" th:attr="data-request-id=${request.id}"
+                            onclick="acceptRequest(this.dataset.requestId)">Accepter</button>
+                        <button class="btn btn-danger" th:attr="data-request-id=${request.id}"
+                            onclick="rejectRequest(this.dataset.requestId)">Refuser</button>
+                        <a th:href="@{/profile/{id}(id=${request.id})}" class="btn btn-secondary">Voir profil</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Tab: Demandes envoyées -->
-    <div id="tab-sent" class="tab-content">
-        <h2 class="section-title">Demandes envoyées (<span th:text="${sentRequests.size()}">0</span>)</h2>
-        <div th:if="${sentRequests.size() == 0}" class="empty-state">
-            <div class="empty-state-icon">📤</div>
-            <p>Aucune demande envoyée en attente</p>
-        </div>
-        <div class="friends-grid">
-            <div th:each="request : ${sentRequests}" class="friend-card">
-                <div class="friend-avatar">
-                    <span th:text="${request.name.substring(0, 2).toUpperCase()}">AB</span>
-                </div>
-                <div class="friend-name" th:text="${request.name}">Nom</div>
-                <div class="friend-email" th:text="${request.email}">email@example.com</div>
-                <div th:if="${request.bio != null}" class="friend-bio" th:text="${request.bio}">Bio</div>
-                <div class="friend-actions">
-                    <span class="btn btn-secondary" style="cursor: default;">En attente...</span>
-                    <a th:href="@{/profile/{id}(id=${request.id})}" class="btn btn-primary">Voir profil</a>
+        <!-- Tab: Demandes envoyées -->
+        <div id="tab-sent" class="tab-content">
+            <h2 class="section-title">Demandes envoyées (<span th:text="${sentRequests.size()}">0</span>)</h2>
+            <div th:if="${sentRequests.size() == 0}" class="empty-state">
+                <div class="empty-state-icon">📤</div>
+                <p>Aucune demande envoyée en attente</p>
+            </div>
+            <div class="friends-grid">
+                <div th:each="request : ${sentRequests}" class="friend-card">
+                    <div class="friend-avatar">
+                        <span
+                            th:text="${request.name != null ? (request.name.length() > 1 ? request.name.substring(0,2).toUpperCase() : request.name.toUpperCase()) : '??'}">AB</span>
+                    </div>
+                    <div class="friend-name" th:text="${request.name}">Nom</div>
+                    <div class="friend-email" th:text="${request.email}">email@example.com</div>
+                    <div th:if="${request.bio != null}" class="friend-bio" th:text="${request.bio}">Bio</div>
+                    <div class="friend-actions">
+                        <span class="btn btn-secondary" style="cursor: default;">En attente...</span>
+                        <a th:href="@{/profile/{id}(id=${request.id})}" class="btn btn-primary">Voir profil</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Tab: Recommandations -->
-    <div id="tab-recommendations" class="tab-content">
-        <h2 class="section-title">Recommandations (<span th:text="${recommendations.size()}">0</span>)</h2>
-        <div th:if="${recommendations.size() == 0}" class="empty-state">
-            <div class="empty-state-icon">✨</div>
-            <p>Aucune recommandation pour le moment</p>
-        </div>
-        <div class="friends-grid">
-            <div th:each="recommendation : ${recommendations}" class="friend-card">
-                <div class="friend-avatar">
-                    <span th:text="${recommendation.name.substring(0, 2).toUpperCase()}">AB</span>
-                </div>
-                <div class="friend-name" th:text="${recommendation.name}">Nom</div>
-                <div class="friend-email" th:text="${recommendation.email}">email@example.com</div>
-                <div th:if="${recommendation.bio != null}" class="friend-bio" th:text="${recommendation.bio}">Bio</div>
-                <div th:if="${recommendation.interests != null and !recommendation.interests.isEmpty()}" class="interests-tags">
-                    <span th:each="interest : ${recommendation.interests}" class="interest-tag" th:text="${interest}">Intérêt</span>
-                </div>
-                <div class="friend-actions">
-                    <button class="btn btn-primary"
-                            th:attr="data-user-id=${recommendation.id}"
+        <!-- Tab: Recommandations -->
+        <div id="tab-recommendations" class="tab-content">
+            <h2 class="section-title">Recommandations (<span th:text="${recommendations.size()}">0</span>)</h2>
+            <div th:if="${recommendations.size() == 0}" class="empty-state">
+                <div class="empty-state-icon">✨</div>
+                <p>Aucune recommandation pour le moment</p>
+            </div>
+            <div class="friends-grid">
+                <div th:each="recommendation : ${recommendations}" class="friend-card">
+                    <div class="friend-avatar">
+                        <span
+                            th:text="${recommendation.name != null ? (recommendation.name.length() > 1 ? recommendation.name.substring(0,2).toUpperCase() : recommendation.name.toUpperCase()) : '??'}">AB</span>
+                    </div>
+                    <div class="friend-name" th:text="${recommendation.name}">Nom</div>
+                    <div class="friend-email" th:text="${recommendation.email}">email@example.com</div>
+                    <div th:if="${recommendation.bio != null}" class="friend-bio" th:text="${recommendation.bio}">Bio
+                    </div>
+                    <div th:if="${recommendation.interests != null and !recommendation.interests.isEmpty()}"
+                        class="interests-tags">
+                        <span th:each="interest : ${recommendation.interests}" class="interest-tag"
+                            th:text="${interest}">Intérêt</span>
+                    </div>
+                    <div class="friend-actions">
+                        <button class="btn btn-primary" th:attr="data-user-id=${recommendation.id}"
                             onclick="sendRequest(this.dataset.userId)">Ajouter</button>
-                    <a th:href="@{/profile/{id}(id=${recommendation.id})}" class="btn btn-secondary">Voir profil</a>
+                        <a th:href="@{/profile/{id}(id=${recommendation.id})}" class="btn btn-secondary">Voir profil</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    // Gestion des onglets
-    function showTab(tabName) {
-        // Masquer tous les contenus
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-        
-        // Désactiver tous les onglets
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        
-        // Afficher le contenu sélectionné
-        document.getElementById('tab-' + tabName).classList.add('active');
-        
-        // Activer l'onglet sélectionné
-        event.target.classList.add('active');
-    }
+    <script>
+        // Gestion des onglets
+        function showTab(tabName) {
+            // Masquer tous les contenus
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
 
-    // Fonctions pour gérer les amis
-    function sendRequest(userId) {
-        fetch('/friends/request/' + userId, {
-            method: 'POST',
-            credentials: 'include'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert('Erreur: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur lors de l\'envoi de la demande');
-        });
-    }
+            // Désactiver tous les onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
 
-    function acceptRequest(userId) {
-        fetch('/friends/accept/' + userId, {
-            method: 'POST',
-            credentials: 'include'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert('Erreur: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur lors de l\'acceptation');
-        });
-    }
+            // Afficher le contenu sélectionné
+            document.getElementById('tab-' + tabName).classList.add('active');
 
-    function rejectRequest(userId) {
-        fetch('/friends/reject/' + userId, {
-            method: 'POST',
-            credentials: 'include'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert('Erreur: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur lors du refus');
-        });
-    }
-
-    function removeFriend(userId) {
-        if (!confirm('Êtes-vous sûr de vouloir retirer cet ami ?')) {
-            return;
+            // Activer l'onglet sélectionné
+            event.target.classList.add('active');
         }
 
-        fetch('/friends/remove/' + userId, {
-            method: 'DELETE',
-            credentials: 'include'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert('Erreur: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur lors de la suppression');
-        });
-    }
-</script>
-</body>
-</html>
+        // Fonctions pour gérer les amis
+        function sendRequest(userId) {
+            fetch('/friends/request/' + userId, {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de l\'envoi de la demande');
+                });
+        }
 
+        function acceptRequest(userId) {
+            fetch('/friends/accept/' + userId, {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de l\'acceptation');
+                });
+        }
+
+        function rejectRequest(userId) {
+            fetch('/friends/reject/' + userId, {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors du refus');
+                });
+        }
+
+        function removeFriend(userId) {
+            if (!confirm('Êtes-vous sûr de vouloir retirer cet ami ?')) {
+                return;
+            }
+
+            fetch('/friends/remove/' + userId, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la suppression');
+                });
+        }
+    </script>
+</body>
+
+</html>

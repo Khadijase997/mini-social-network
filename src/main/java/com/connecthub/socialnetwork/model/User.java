@@ -26,10 +26,10 @@ public class User {
     private String bio;
     private LocalDateTime createdAt;
     private String profileImage;
-    
+
     // Intérêts de l'utilisateur (pour recommandations et recherche)
     private Set<String> interests = new HashSet<>();
-    
+
     // Liens externes (visibles uniquement pour les amis)
     private String whatsappLink;
     private String instagramLink;
@@ -46,23 +46,22 @@ public class User {
     // Demandes d'amis reçues
     @Relationship(type = "FRIEND_REQUEST", direction = Relationship.Direction.INCOMING)
     private Set<User> receivedFriendRequests = new HashSet<>();
-    
+
     // Utilisateurs bloqués
     @Relationship(type = "BLOCKED", direction = Relationship.Direction.OUTGOING)
     private Set<User> blockedUsers = new HashSet<>();
-    
+
     // Publications créées
     @Relationship(type = "POSTED", direction = Relationship.Direction.OUTGOING)
     private Set<Post> posts = new HashSet<>();
-    
+
     // Publications likées
     @Relationship(type = "LIKED_BY", direction = Relationship.Direction.OUTGOING)
     private Set<Post> likedPosts = new HashSet<>();
-    
+
     // Commentaires créés
     @Relationship(type = "COMMENTED", direction = Relationship.Direction.OUTGOING)
     private Set<Comment> comments = new HashSet<>();
-
 
     public User() {
     }
@@ -74,5 +73,27 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        User user = (User) o;
+        return id != null && id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

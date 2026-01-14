@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,14 +48,14 @@ public class UserController {
 
         model.addAttribute("user", currentUser);
         model.addAttribute("isOwnProfile", true);
-        
+
         // Publications de l'utilisateur
         model.addAttribute("myPosts", postService.getUserPosts(currentUser.getId()));
-        
+
         // Statistiques
         UserService.UserStatistics stats = userService.getUserStatistics(currentUser.getId());
         model.addAttribute("stats", stats);
-        
+
         // Vérifier si l'utilisateur a des amis pour afficher les liens externes
         boolean hasFriends = friendService.getFriends(currentUser.getId()).size() > 0;
         model.addAttribute("hasFriends", hasFriends);
@@ -78,35 +79,44 @@ public class UserController {
         }
 
         User user = userOpt.get();
-        
+
         // Vérifier si l'utilisateur est bloqué
-        if (friendService.isBlocked(currentUser.getId(), userId) || 
-            friendService.isBlocked(userId, currentUser.getId())) {
+        if (friendService.isBlocked(currentUser.getId(), userId) ||
+                friendService.isBlocked(userId, currentUser.getId())) {
             return "redirect:/home";
         }
 
         model.addAttribute("user", user);
         model.addAttribute("isOwnProfile", currentUser.getId().equals(userId));
-        
+
         // Posts de cet utilisateur
         model.addAttribute("myPosts", postService.getUserPosts(userId));
-        
+
         // Statistiques
         UserService.UserStatistics stats = userService.getUserStatistics(userId);
         model.addAttribute("stats", stats);
-        
+
         // Vérifier si les utilisateurs sont amis (pour afficher les liens externes)
         boolean areFriends = friendService.getFriends(currentUser.getId()).stream()
                 .anyMatch(friend -> friend.getId().equals(userId));
         model.addAttribute("areFriends", areFriends);
-        
+
         // Amis en commun
         int mutualFriends = friendService.getMutualFriendsCount(currentUser.getId(), userId);
         model.addAttribute("mutualFriends", mutualFriends);
 
         return "profile";
     }
-    
+
+    private static final List<String> ALL_INTERESTS = java.util.stream.Stream.of(
+            "Art", "Beauty", "Books", "Business and entrepreneurship", "Cars and automobiles",
+            "Cooking", "DIY and crafts", "Education and learning", "Fashion", "Finance and investments",
+            "Fitness", "Food and dining", "Gaming", "Gardening", "Health and wellness",
+            "History", "Movies", "Music", "Nature", "Outdoor activities",
+            "Parenting and family", "Pets", "Photography", "Politics", "Science",
+            "Social causes and activism", "Sports", "Technology", "Travel").sorted()
+            .collect(java.util.stream.Collectors.toList());
+
     // =========================
     // MODIFICATION DE PROFIL
     // =========================
@@ -118,36 +128,31 @@ public class UserController {
         }
 
         model.addAttribute("user", currentUser);
+        model.addAttribute("allInterests", ALL_INTERESTS);
         return "edit-profile";
     }
-    
+
     @PostMapping("/profile/update")
     public String updateProfile(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String bio,
             @RequestParam(required = false) String profileImage,
-            @RequestParam(required = false) String interests,
+            @RequestParam(required = false) List<String> interests,
             @RequestParam(required = false) String whatsappLink,
             @RequestParam(required = false) String instagramLink,
             @RequestParam(required = false) String messengerLink,
             RedirectAttributes redirectAttributes) {
-        
+
         User currentUser = getCurrentUser();
         if (currentUser == null) {
             return "redirect:/login";
         }
 
         try {
-            // Parser les intérêts (séparés par des virgules)
+            // Parser les intérêts
             Set<String> interestsSet = new HashSet<>();
-            if (interests != null && !interests.trim().isEmpty()) {
-                String[] interestsArray = interests.split(",");
-                for (String interest : interestsArray) {
-                    String trimmed = interest.trim();
-                    if (!trimmed.isEmpty()) {
-                        interestsSet.add(trimmed);
-                    }
-                }
+            if (interests != null) {
+                interestsSet.addAll(interests);
             }
 
             userService.updateProfile(
@@ -158,8 +163,7 @@ public class UserController {
                     interestsSet,
                     whatsappLink,
                     instagramLink,
-                    messengerLink
-            );
+                    messengerLink);
 
             redirectAttributes.addFlashAttribute("success", "Profil mis à jour avec succès");
         } catch (Exception e) {
@@ -168,7 +172,7 @@ public class UserController {
 
         return "redirect:/profile";
     }
-    
+
     // =========================
     // CHANGEMENT DE MOT DE PASSE
     // =========================
@@ -178,7 +182,7 @@ public class UserController {
             @RequestParam("newPassword") String newPassword,
             @RequestParam("confirmPassword") String confirmPassword,
             RedirectAttributes redirectAttributes) {
-        
+
         User currentUser = getCurrentUser();
         if (currentUser == null) {
             return "redirect:/login";

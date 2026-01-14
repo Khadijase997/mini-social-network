@@ -51,7 +51,15 @@ public class FriendController {
             List<User> friends = friendService.getFriends(userId);
             List<User> receivedRequests = friendService.getReceivedFriendRequests(userId);
             List<User> sentRequests = friendService.getSentFriendRequests(userId);
-            List<User> recommendations = friendService.getFriendRecommendationsWithInterests(userId, 10);
+
+            List<User> recommendations = List.of();
+            try {
+                recommendations = friendService.getFriendRecommendationsWithInterests(userId, 10);
+            } catch (Exception e) {
+                // Log failure quietly and continue
+                // Ideally log.error(), but for now just suppress to keep page alive.
+                System.err.println("Failed to load recommendations: " + e.getMessage());
+            }
 
             // Ajouter au modèle
             model.addAttribute("friends", friends);

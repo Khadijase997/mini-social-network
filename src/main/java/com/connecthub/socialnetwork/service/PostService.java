@@ -36,8 +36,9 @@ public class PostService {
 
     /**
      * Crée une nouvelle publication
-     * @param author Auteur de la publication
-     * @param content Contenu textuel
+     * 
+     * @param author   Auteur de la publication
+     * @param content  Contenu textuel
      * @param imageUrl URL de l'image (optionnel)
      * @return Publication créée
      */
@@ -50,14 +51,15 @@ public class PostService {
         post.setAuthor(author);
 
         Post savedPost = postRepository.save(post);
-        
+
         // Mettre à jour la relation POSTED dans l'auteur
         // Neo4j Spring Data gère automatiquement la relation bidirectionnelle
         // mais il faut sauvegarder l'auteur pour persister la relation
         author.getPosts().add(savedPost);
-        // Note: La relation sera persistée automatiquement lors de la sauvegarde du post
+        // Note: La relation sera persistée automatiquement lors de la sauvegarde du
+        // post
         // grâce à @Relationship dans le modèle Post
-        
+
         return savedPost;
     }
 
@@ -70,6 +72,7 @@ public class PostService {
 
     /**
      * Supprime une publication (seulement par son auteur)
+     * 
      * @param postId ID de la publication
      * @param userId ID de l'utilisateur (vérification de sécurité)
      * @throws RuntimeException si l'utilisateur n'est pas l'auteur
@@ -79,17 +82,24 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Publication introuvable"));
 
+        if (post.getAuthor() == null) {
+            throw new RuntimeException("Erreur d'intégrité : Auteur de la publication introuvable");
+        }
+
         if (!post.getAuthor().getId().equals(userId)) {
             throw new RuntimeException("Vous n'êtes pas autorisé à supprimer cette publication");
         }
 
-        postRepository.delete(post);
+        // Utilisation de la méthode Cypher pour suppression propre et complète (inc.
+        // commentaires)
+        postRepository.deletePostById(postId);
     }
 
     /**
      * Like/Unlike une publication
+     * 
      * @param postId ID de la publication
-     * @param user Utilisateur qui like/unlike
+     * @param user   Utilisateur qui like/unlike
      * @return true si liké, false si unliké
      */
     @Transactional
@@ -129,8 +139,9 @@ public class PostService {
 
     /**
      * Ajoute un commentaire à une publication
-     * @param postId ID de la publication
-     * @param user Auteur du commentaire
+     * 
+     * @param postId  ID de la publication
+     * @param user    Auteur du commentaire
      * @param content Contenu du commentaire
      * @return Commentaire créé
      */
@@ -146,11 +157,11 @@ public class PostService {
         comment.setPost(post);
 
         Comment savedComment = commentRepository.save(comment);
-        
+
         // Mettre à jour la relation HAS_COMMENT
         post.getComments().add(savedComment);
         postRepository.save(post);
-        
+
         // Mettre à jour la relation COMMENTED
         user.getComments().add(savedComment);
 

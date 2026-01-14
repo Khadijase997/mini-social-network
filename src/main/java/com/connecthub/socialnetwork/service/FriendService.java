@@ -5,8 +5,10 @@ import com.connecthub.socialnetwork.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class FriendService {
     private final UserRepository userRepository;
 
@@ -29,69 +31,59 @@ public class FriendService {
         if (fromUser.getSentFriendRequests().contains(toUser)) {
             throw new RuntimeException("Demande déjà envoyée");
         }
+        if (fromUser.getReceivedFriendRequests().contains(toUser)) {
+            // If the other person already sent a request, just accept it?
+            // For now, let's just throw or handle. The UI usually handles this state.
+            // But technically we should probably auto-accept if mutual.
+            // Sticking to simple logic for now as requested.
+            throw new RuntimeException("Cet utilisateur vous a déjà envoyé une demande");
+        }
 
         fromUser.getSentFriendRequests().add(toUser);
         userRepository.save(fromUser);
     }
 
     public void acceptFriendRequest(String fromUserId, String toUserId) {
-        User fromUser = userRepository.findById(fromUserId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur source introuvable"));
-        User toUser = userRepository.findById(toUserId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur cible introuvable"));
-
-        if (!toUser.getReceivedFriendRequests().contains(fromUser)) {
-            throw new RuntimeException("Aucune demande trouvée");
+        // Validation basique
+        if (fromUserId.equals(toUserId)) {
+            throw new RuntimeException("Impossible d'accepter une demande de soi-même");
         }
 
-        toUser.getReceivedFriendRequests().remove(fromUser);
-        fromUser.getSentFriendRequests().remove(toUser);
-
-        fromUser.getFriends().add(toUser);
-        toUser.getFriends().add(fromUser);
-
-        userRepository.save(fromUser);
-        userRepository.save(toUser);
+        // Utilisation de la requête Cypher native pour une atomicité et fiabilité
+        // garanties
+        // fromUserId = Sender (celui qui a envoyé la demande)
+        // toUserId = Receiver (celui qui accepte)
+        userRepository.acceptFriendRequest(fromUserId, toUserId);
     }
 
     public void rejectFriendRequest(String fromUserId, String toUserId) {
-        User fromUser = userRepository.findById(fromUserId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur source introuvable"));
-        User toUser = userRepository.findById(toUserId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur cible introuvable"));
-
-        toUser.getReceivedFriendRequests().remove(fromUser);
-        fromUser.getSentFriendRequests().remove(toUser);
-
-        userRepository.save(fromUser);
-        userRepository.save(toUser);
+        // Utilisation de la requête Cypher native pour fiabilité
+        userRepository.rejectFriendRequest(fromUserId, toUserId);
     }
 
     public void removeFriend(String userId, String friendId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-        User friend = userRepository.findById(friendId)
-                .orElseThrow(() -> new RuntimeException("Ami introuvable"));
-
-        user.getFriends().remove(friend);
-        friend.getFriends().remove(user);
-
-        userRepository.save(user);
-        userRepository.save(friend);
+        // Utilisation de la requête Cypher native pour fiabilité
+        userRepository.removeFriend(userId, friendId);
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<User> getFriends(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-        return new ArrayList<>(user.getFriends());
+        // Force initialization to avoid LazyInitializationException if outside
+        // transaction
+        List<User> friends = new ArrayList<>(user.getFriends());
+        return friends;
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<User> getReceivedFriendRequests(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
         return new ArrayList<>(user.getReceivedFriendRequests());
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<User> getSentFriendRequests(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
@@ -99,7 +91,8 @@ public class FriendService {
     }
 
     /**
-     * Retourne le statut de relation entre l'utilisateur courant et un autre utilisateur.
+     * Retourne le statut de relation entre l'utilisateur courant et un autre
+     * utilisateur.
      * FRIEND, REQUEST_SENT, REQUEST_RECEIVED ou NONE.
      */
     public String getRelationStatus(User currentUser, User other) {
@@ -117,59 +110,7 @@ public class FriendService {
 
     // Algorithme de recommandation d'amis
     public List<User> getFriendRecommendations(String userId, int limit) {
-        User currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-
-        Set<User> currentFriends = currentUser.getFriends();
-        Set<User> sentRequests = currentUser.getSentFriendRequests();
-        Set<User> receivedRequests = currentUser.getReceivedFriendRequests();
-
-        // Map pour stocker les scores de recommandation
-        Map<User, Integer> recommendationScores = new HashMap<>();
-
-        // 1. Amis d'amis (score le plus élevé)
-        for (User friend : currentFriends) {
-            for (User friendOfFriend : friend.getFriends()) {
-                if (!friendOfFriend.getId().equals(userId) &&
-                        !currentFriends.contains(friendOfFriend) &&
-                        !sentRequests.contains(friendOfFriend) &&
-                        !receivedRequests.contains(friendOfFriend)) {
-
-                    recommendationScores.put(friendOfFriend,
-                            recommendationScores.getOrDefault(friendOfFriend, 0) + 10);
-                }
-            }
-        }
-
-        // 2. Amis communs (bonus supplémentaire)
-        for (Map.Entry<User, Integer> entry : recommendationScores.entrySet()) {
-            User candidate = entry.getKey();
-            int mutualFriends = countMutualFriends(currentUser, candidate);
-            entry.setValue(entry.getValue() + mutualFriends * 5);
-        }
-
-        // 3. Utilisateurs populaires (bonus mineur)
-        List<User> allUsers = userRepository.findAll();
-        for (User user : allUsers) {
-            if (!user.getId().equals(userId) &&
-                    !currentFriends.contains(user) &&
-                    !sentRequests.contains(user) &&
-                    !receivedRequests.contains(user) &&
-                    !recommendationScores.containsKey(user)) {
-
-                int popularity = user.getFriends().size();
-                if (popularity > 5) {
-                    recommendationScores.put(user, popularity / 2);
-                }
-            }
-        }
-
-        // Trier par score décroissant et retourner les top recommendations
-        return recommendationScores.entrySet().stream()
-                .sorted(Map.Entry.<User, Integer>comparingByValue().reversed())
-                .limit(limit)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+        return getFriendRecommendationsWithInterests(userId, limit);
     }
 
     private int countMutualFriends(User user1, User user2) {
@@ -247,94 +188,59 @@ public class FriendService {
     }
 
     /**
-     * Amélioration de l'algorithme de recommandation avec intérêts partagés
+     * Recommandation basée STRICTEMENT sur les centres d'intérêt communs.
      */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<User> getFriendRecommendationsWithInterests(String userId, int limit) {
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-        Set<User> currentFriends = currentUser.getFriends();
-        Set<User> sentRequests = currentUser.getSentFriendRequests();
-        Set<User> receivedRequests = currentUser.getReceivedFriendRequests();
-        Set<User> blockedUsers = currentUser.getBlockedUsers();
+        Set<String> myInterests = currentUser.getInterests();
+        if (myInterests == null || myInterests.isEmpty()) {
+            return new ArrayList<>(); // Pas d'intérêts, pas de reco basées sur intérêts
+        }
 
-        // Map pour stocker les scores de recommandation
-        Map<User, Integer> recommendationScores = new HashMap<>();
+        // Cache des IDs à exclure (Soi-même, Amis, Demandes reçues, Demandes envoyées,
+        // Bloqués)
+        Set<String> excludedIds = new HashSet<>();
+        excludedIds.add(userId);
+        currentUser.getFriends().forEach(u -> excludedIds.add(u.getId()));
+        currentUser.getSentFriendRequests().forEach(u -> excludedIds.add(u.getId()));
+        currentUser.getReceivedFriendRequests().forEach(u -> excludedIds.add(u.getId()));
+        currentUser.getBlockedUsers().forEach(u -> excludedIds.add(u.getId()));
 
-        // 1. Amis d'amis (score le plus élevé: +10)
-        for (User friend : currentFriends) {
-            for (User friendOfFriend : friend.getFriends()) {
-                if (!friendOfFriend.getId().equals(userId) &&
-                        !currentFriends.contains(friendOfFriend) &&
-                        !sentRequests.contains(friendOfFriend) &&
-                        !receivedRequests.contains(friendOfFriend) &&
-                        !blockedUsers.contains(friendOfFriend)) {
+        // Récupérer les candidats potentiels
+        // L'idéal serait une requête Cypher optimisée, mais pour rester simple et
+        // éviter StackOverflow:
+        // On cherche les utilisateurs qui ont au moins UN intérêt en commun.
+        List<User> candidates = userRepository.findUsersBySharedInterests(userId, 50); // Fetch top 50 matches
 
-                    recommendationScores.put(friendOfFriend,
-                            recommendationScores.getOrDefault(friendOfFriend, 0) + 10);
-                }
+        // Calcul du score et filtrage final
+        Map<User, Integer> scoredCandidates = new HashMap<>();
+
+        for (User candidate : candidates) {
+            String cid = candidate.getId();
+            if (excludedIds.contains(cid)) {
+                continue;
+            }
+
+            Set<String> candidateInterests = candidate.getInterests();
+            if (candidateInterests == null)
+                continue;
+
+            // Compter les intérêts communs (Intersection)
+            long commonCount = myInterests.stream()
+                    .filter(candidateInterests::contains)
+                    .count();
+
+            if (commonCount > 0) {
+                // Score = nombre d'intérêts communs * 10
+                scoredCandidates.put(candidate, (int) commonCount * 10);
             }
         }
 
-        // 2. Amis communs (bonus: +5 par ami commun)
-        for (Map.Entry<User, Integer> entry : recommendationScores.entrySet()) {
-            User candidate = entry.getKey();
-            int mutualFriends = countMutualFriends(currentUser, candidate);
-            entry.setValue(entry.getValue() + mutualFriends * 5);
-        }
-
-        // 3. Intérêts partagés (bonus: +3 par intérêt commun)
-        for (Map.Entry<User, Integer> entry : recommendationScores.entrySet()) {
-            User candidate = entry.getKey();
-            if (candidate.getInterests() != null && currentUser.getInterests() != null) {
-                long commonInterests = currentUser.getInterests().stream()
-                        .filter(candidate.getInterests()::contains)
-                        .count();
-                entry.setValue(entry.getValue() + (int) commonInterests * 3);
-            }
-        }
-
-        // 4. Utilisateurs avec intérêts partagés (même s'ils ne sont pas amis d'amis)
-        List<User> usersByInterests = userRepository.findUsersBySharedInterests(userId, 20);
-        for (User candidate : usersByInterests) {
-            if (!candidate.getId().equals(userId) &&
-                    !currentFriends.contains(candidate) &&
-                    !sentRequests.contains(candidate) &&
-                    !receivedRequests.contains(candidate) &&
-                    !blockedUsers.contains(candidate) &&
-                    !recommendationScores.containsKey(candidate)) {
-
-                // Score basé sur le nombre d'intérêts communs
-                if (candidate.getInterests() != null && currentUser.getInterests() != null) {
-                    long commonInterests = currentUser.getInterests().stream()
-                            .filter(candidate.getInterests()::contains)
-                            .count();
-                    if (commonInterests > 0) {
-                        recommendationScores.put(candidate, (int) commonInterests * 3);
-                    }
-                }
-            }
-        }
-
-        // 5. Utilisateurs populaires (bonus mineur: +1 par 2 amis au-dessus de 5)
-        List<User> allUsers = userRepository.findAll();
-        for (User user : allUsers) {
-            if (!user.getId().equals(userId) &&
-                    !currentFriends.contains(user) &&
-                    !sentRequests.contains(user) &&
-                    !receivedRequests.contains(user) &&
-                    !blockedUsers.contains(user) &&
-                    !recommendationScores.containsKey(user)) {
-
-                int popularity = user.getFriends().size();
-                if (popularity > 5) {
-                    recommendationScores.put(user, popularity / 2);
-                }
-            }
-        }
-
-        // Trier par score décroissant et retourner les top recommendations
-        return recommendationScores.entrySet().stream()
+        // Trier par score décroissant
+        return scoredCandidates.entrySet().stream()
                 .sorted(Map.Entry.<User, Integer>comparingByValue().reversed())
                 .limit(limit)
                 .map(Map.Entry::getKey)
