@@ -27,7 +27,17 @@ public class AuthController {
         this.userService = userService;
     }
 
-    // Page d'accueil (redirection vers login)
+    // Page d'accueil publique (affichée avant authentification)
+    @GetMapping({"/", "/index"})
+    public String index(Authentication authentication) {
+        // Si l'utilisateur est déjà authentifié, rediriger vers home
+        if (authentication != null && authentication.isAuthenticated() && 
+            !authentication.getPrincipal().equals("anonymousUser")) {
+            return "redirect:/home";
+        }
+        // Sinon, afficher la page d'accueil publique
+        return "index";
+    }
 
     // Afficher le formulaire d'inscription
     @GetMapping("/register")

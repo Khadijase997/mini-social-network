@@ -4,6 +4,7 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 import java.util.HashSet;
 import java.util.Set;
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ import lombok.Setter;
 public class User {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(UUIDStringGenerator.class)
     private String id;
 
     private String name;
@@ -25,9 +26,17 @@ public class User {
     private String bio;
     private LocalDateTime createdAt;
     private String profileImage;
+    
+    // Intérêts de l'utilisateur (pour recommandations et recherche)
+    private Set<String> interests = new HashSet<>();
+    
+    // Liens externes (visibles uniquement pour les amis)
+    private String whatsappLink;
+    private String instagramLink;
+    private String messengerLink;
 
     // Amis (relation bidirectionnelle)
-    @Relationship(type = "FRIENDS_WITH")
+    @Relationship(type = "CONNECTED_TO")
     private Set<User> friends = new HashSet<>();
 
     // Demandes d'amis envoyées
@@ -37,6 +46,22 @@ public class User {
     // Demandes d'amis reçues
     @Relationship(type = "FRIEND_REQUEST", direction = Relationship.Direction.INCOMING)
     private Set<User> receivedFriendRequests = new HashSet<>();
+    
+    // Utilisateurs bloqués
+    @Relationship(type = "BLOCKED", direction = Relationship.Direction.OUTGOING)
+    private Set<User> blockedUsers = new HashSet<>();
+    
+    // Publications créées
+    @Relationship(type = "POSTED", direction = Relationship.Direction.OUTGOING)
+    private Set<Post> posts = new HashSet<>();
+    
+    // Publications likées
+    @Relationship(type = "LIKED_BY", direction = Relationship.Direction.OUTGOING)
+    private Set<Post> likedPosts = new HashSet<>();
+    
+    // Commentaires créés
+    @Relationship(type = "COMMENTED", direction = Relationship.Direction.OUTGOING)
+    private Set<Comment> comments = new HashSet<>();
 
 
     public User() {

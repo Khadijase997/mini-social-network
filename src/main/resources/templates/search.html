@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ConnectHub - Recherche</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/HERO_CSS/hero.css">
+    <style>
+        .search-container {
+            max-width: 1000px;
+            margin: 100px auto 40px;
+            padding: 0 20px;
+        }
+
+        .search-box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            border-color: #764ba2;
+            color: #764ba2;
+        }
+
+        .results-section {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .results-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .user-card {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 24px;
+            margin: 0 auto 15px;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .user-email {
+            font-size: 13px;
+            color: #718096;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .user-bio {
+            font-size: 14px;
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .interests-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .interest-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- ================= SEARCH PAGE ================= -->
+<div class="search-container">
+    <h1 style="font-size: 32px; font-weight: 700; color: #2d3748; margin-bottom: 30px;">
+        🔍 Rechercher des utilisateurs
+    </h1>
+
+    <div class="search-box">
+        <form class="search-form" th:action="@{/search}" method="get">
+            <input type="text" 
+                   name="q" 
+                   class="search-input" 
+                   placeholder="Rechercher par nom, email, bio ou intérêts..."
+                   th:value="${query}">
+            <button type="submit" class="search-btn">Rechercher</button>
+        </form>
+
+        <div class="filter-buttons">
+            <a th:href="@{/search(q=${query}, filter='interests')}" class="filter-btn">Par intérêts partagés</a>
+        </div>
+    </div>
+
+    <div th:if="${results != null}" class="results-section">
+        <h2 class="results-title">
+            Résultats 
+            <span th:if="${resultsCount != null}" th:text="'(' + ${resultsCount} + ')'">(0)</span>
+        </h2>
+
+        <div th:if="${results.size() == 0}" class="empty-state">
+            <div class="empty-state-icon">🔍</div>
+            <p>Aucun résultat trouvé pour "<span th:text="${query}"></span>"</p>
+        </div>
+
+        <div th:if="${results.size() > 0}" class="results-grid">
+            <div th:each="user : ${results}" class="user-card">
+                <div class="user-avatar">
+                    <span th:text="${user.name.substring(0, 2).toUpperCase()}">AB</span>
+                </div>
+                <div class="user-name" th:text="${user.name}">Nom</div>
+                <div class="user-email" th:text="${user.email}">email@example.com</div>
+                <div th:if="${user.bio != null}" class="user-bio" th:text="${user.bio}">Bio</div>
+                <div th:if="${user.interests != null and !user.interests.isEmpty()}" class="interests-tags">
+                    <span th:each="interest : ${user.interests}" class="interest-tag" th:text="${interest}">Intérêt</span>
+                </div>
+                <div class="user-actions">
+                    <a th:href="@{/profile/{id}(id=${user.id})}" class="btn btn-primary">Voir profil</a>
+                    <button class="btn btn-secondary"
+                            th:attr="data-user-id=${user.id}"
+                            onclick="sendFriendRequest(this.dataset.userId)">Ajouter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${results == null}" class="results-section">
+        <div class="empty-state">
+            <div class="empty-state-icon">🔍</div>
+            <p>Entrez un terme de recherche pour commencer</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function sendFriendRequest(userId) {
+        fetch('/friends/request/' + userId, {
+            method: 'POST',
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'envoi de la demande');
+        });
+    }
+</script>
+</body>
+</html>
+

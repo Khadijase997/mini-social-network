@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <!-- Fragment NavBar réutilisable pour toutes les pages post-login -->
+    <nav class="navbar" th:fragment="navbar">
+        <div class="nav-container">
+            <a th:href="@{/home}" class="logo">
+                <div class="logo-icon">C</div>
+                <span class="logo-text">ConnectHub</span>
+            </a>
+
+            <div class="nav-menu">
+                <a th:href="@{/home}" class="nav-link">Accueil</a>
+                <a th:href="@{/profile}" class="nav-link">Mon profil</a>
+                <a th:href="@{/friends}" class="nav-link">Amis</a>
+                <a th:href="@{/search}" class="nav-link">Rechercher</a>
+            </div>
+
+            <div class="user-menu">
+                <form th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="logout-btn">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>

@@ -2,26 +2,37 @@ package com.connecthub.socialnetwork.controller;
 
 import com.connecthub.socialnetwork.dto.UserResponse;
 import com.connecthub.socialnetwork.model.User;
+import com.connecthub.socialnetwork.service.FriendService;
 import com.connecthub.socialnetwork.service.PostService;
 import com.connecthub.socialnetwork.service.UserService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
+/**
+ * Contrôleur pour la gestion des profils utilisateur
+ * Gère l'affichage, modification et statistiques
+ */
 @Controller
 public class UserController {
 
     private final UserService userService;
     private final PostService postService;
+    private final FriendService friendService;
 
-    // ✅ UN SEUL CONSTRUCTEUR
-    public UserController(UserService userService, PostService postService) {
+    public UserController(UserService userService, PostService postService, FriendService friendService) {
         this.userService = userService;
         this.postService = postService;
+        this.friendService = friendService;
     }
 
     // =========================
@@ -34,11 +45,19 @@ public class UserController {
             return "redirect:/login";
         }
 
-        model.addAttribute("user", userService.toUserResponse(currentUser));
+        model.addAttribute("user", currentUser);
         model.addAttribute("isOwnProfile", true);
-
-        // ✅ IMPORTANT : myPosts
-        model.addAttribute("myPosts", postService.getFeedPosts(currentUser));
+        
+        // Publications de l'utilisateur
+        model.addAttribute("myPosts", postService.getUserPosts(currentUser.getId()));
+        
+        // Statistiques
+        UserService.UserStatistics stats = userService.getUserStatistics(currentUser.getId());
+        model.addAttribute("stats", stats);
+        
+        // Vérifier si l'utilisateur a des amis pour afficher les liens externes
+        boolean hasFriends = friendService.getFriends(currentUser.getId()).size() > 0;
+        model.addAttribute("hasFriends", hasFriends);
 
         return "profile";
     }
@@ -59,14 +78,125 @@ public class UserController {
         }
 
         User user = userOpt.get();
+        
+        // Vérifier si l'utilisateur est bloqué
+        if (friendService.isBlocked(currentUser.getId(), userId) || 
+            friendService.isBlocked(userId, currentUser.getId())) {
+            return "redirect:/home";
+        }
 
-        model.addAttribute("user", userService.toUserResponse(user));
+        model.addAttribute("user", user);
         model.addAttribute("isOwnProfile", currentUser.getId().equals(userId));
-
+        
         // Posts de cet utilisateur
-        model.addAttribute("myPosts", postService.getFeedPosts(user));
+        model.addAttribute("myPosts", postService.getUserPosts(userId));
+        
+        // Statistiques
+        UserService.UserStatistics stats = userService.getUserStatistics(userId);
+        model.addAttribute("stats", stats);
+        
+        // Vérifier si les utilisateurs sont amis (pour afficher les liens externes)
+        boolean areFriends = friendService.getFriends(currentUser.getId()).stream()
+                .anyMatch(friend -> friend.getId().equals(userId));
+        model.addAttribute("areFriends", areFriends);
+        
+        // Amis en commun
+        int mutualFriends = friendService.getMutualFriendsCount(currentUser.getId(), userId);
+        model.addAttribute("mutualFriends", mutualFriends);
 
         return "profile";
+    }
+    
+    // =========================
+    // MODIFICATION DE PROFIL
+    // =========================
+    @GetMapping("/profile/edit")
+    public String editProfilePage(Model model) {
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("user", currentUser);
+        return "edit-profile";
+    }
+    
+    @PostMapping("/profile/update")
+    public String updateProfile(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String bio,
+            @RequestParam(required = false) String profileImage,
+            @RequestParam(required = false) String interests,
+            @RequestParam(required = false) String whatsappLink,
+            @RequestParam(required = false) String instagramLink,
+            @RequestParam(required = false) String messengerLink,
+            RedirectAttributes redirectAttributes) {
+        
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            // Parser les intérêts (séparés par des virgules)
+            Set<String> interestsSet = new HashSet<>();
+            if (interests != null && !interests.trim().isEmpty()) {
+                String[] interestsArray = interests.split(",");
+                for (String interest : interestsArray) {
+                    String trimmed = interest.trim();
+                    if (!trimmed.isEmpty()) {
+                        interestsSet.add(trimmed);
+                    }
+                }
+            }
+
+            userService.updateProfile(
+                    currentUser.getId(),
+                    name,
+                    bio,
+                    profileImage,
+                    interestsSet,
+                    whatsappLink,
+                    instagramLink,
+                    messengerLink
+            );
+
+            redirectAttributes.addFlashAttribute("success", "Profil mis à jour avec succès");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erreur lors de la mise à jour: " + e.getMessage());
+        }
+
+        return "redirect:/profile";
+    }
+    
+    // =========================
+    // CHANGEMENT DE MOT DE PASSE
+    // =========================
+    @PostMapping("/profile/change-password")
+    public String changePassword(
+            @RequestParam("currentPassword") String currentPassword,
+            @RequestParam("newPassword") String newPassword,
+            @RequestParam("confirmPassword") String confirmPassword,
+            RedirectAttributes redirectAttributes) {
+        
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            if (!newPassword.equals(confirmPassword)) {
+                redirectAttributes.addFlashAttribute("error", "Les mots de passe ne correspondent pas");
+                return "redirect:/profile/edit";
+            }
+
+            userService.changePassword(currentUser.getId(), currentPassword, newPassword);
+            redirectAttributes.addFlashAttribute("success", "Mot de passe changé avec succès");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erreur: " + e.getMessage());
+        }
+
+        return "redirect:/profile/edit";
     }
 
     // =========================

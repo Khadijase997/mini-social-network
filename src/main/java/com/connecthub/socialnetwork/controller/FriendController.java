@@ -7,11 +7,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Contrôleur pour la gestion des amis
+ * Gère les demandes d'amitié, recommandations et blocage
+ */
 @Controller
 @RequestMapping("/friends")
 public class FriendController {
@@ -21,6 +27,49 @@ public class FriendController {
     public FriendController(FriendService friendService, UserService userService) {
         this.friendService = friendService;
         this.userService = userService;
+    }
+
+    /**
+     * Page principale des amis
+     * Affiche la liste des amis, demandes d'amitié et recommandations
+     */
+    @GetMapping
+    public String friendsPage(
+            Principal principal,
+            Model model) {
+        // Vérifier si l'utilisateur est authentifié
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            String email = principal.getName();
+            User currentUser = userService.getUserByEmail(email);
+            String userId = currentUser.getId();
+
+            // Récupérer les données
+            List<User> friends = friendService.getFriends(userId);
+            List<User> receivedRequests = friendService.getReceivedFriendRequests(userId);
+            List<User> sentRequests = friendService.getSentFriendRequests(userId);
+            List<User> recommendations = friendService.getFriendRecommendationsWithInterests(userId, 10);
+
+            // Ajouter au modèle
+            model.addAttribute("friends", friends);
+            model.addAttribute("receivedRequests", receivedRequests);
+            model.addAttribute("sentRequests", sentRequests);
+            model.addAttribute("recommendations", recommendations);
+            model.addAttribute("currentUser", currentUser);
+
+            return "friends";
+        } catch (Exception e) {
+            model.addAttribute("error", "Erreur lors du chargement: " + e.getMessage());
+            // Initialiser des listes vides en cas d'erreur
+            model.addAttribute("friends", List.of());
+            model.addAttribute("receivedRequests", List.of());
+            model.addAttribute("sentRequests", List.of());
+            model.addAttribute("recommendations", List.of());
+            return "friends";
+        }
     }
 
     // Envoyer une demande d'ami
@@ -205,6 +254,74 @@ public class FriendController {
 
             int count = friendService.getMutualFriendsCount(currentUserId, userId);
             return ResponseEntity.ok(Map.of("mutualFriendsCount", count));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // Bloquer un utilisateur
+    @PostMapping("/block/{userId}")
+    @ResponseBody
+    public ResponseEntity<?> blockUser(
+            @PathVariable String userId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            User currentUser = userService.getUserByEmail(email);
+            String currentUserId = currentUser.getId();
+
+            friendService.blockUser(currentUserId, userId);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Utilisateur bloqué avec succès");
+            response.put("status", "success");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            error.put("status", "error");
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Débloquer un utilisateur
+    @PostMapping("/unblock/{userId}")
+    @ResponseBody
+    public ResponseEntity<?> unblockUser(
+            @PathVariable String userId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            User currentUser = userService.getUserByEmail(email);
+            String currentUserId = currentUser.getId();
+
+            friendService.unblockUser(currentUserId, userId);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Utilisateur débloqué avec succès");
+            response.put("status", "success");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            error.put("status", "error");
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    // Obtenir les recommandations d'amis avec intérêts
+    @GetMapping("/recommendations/advanced")
+    @ResponseBody
+    public ResponseEntity<?> getAdvancedRecommendations(
+            @RequestParam(defaultValue = "10") int limit,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String email = userDetails.getUsername();
+            User currentUser = userService.getUserByEmail(email);
+            String userId = currentUser.getId();
+
+            List<User> recommendations = friendService.getFriendRecommendationsWithInterests(userId, limit);
+            return ResponseEntity.ok(recommendations);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

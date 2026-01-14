@@ -8,6 +8,10 @@ public class UserResponse {
     private String bio;
     private int friendsCount;
     private String profileImage;
+    // Statut de relation avec l'utilisateur courant (FRIEND, REQUEST_SENT, REQUEST_RECEIVED, NONE)
+    private String relationStatus;
+    // Nombre d'amis en commun avec l'utilisateur courant
+    private Integer mutualFriendsCount;
 
     public UserResponse() {
     }
@@ -68,5 +72,21 @@ public class UserResponse {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public String getRelationStatus() {
+        return relationStatus;
+    }
+
+    public void setRelationStatus(String relationStatus) {
+        this.relationStatus = relationStatus;
+    }
+
+    public Integer getMutualFriendsCount() {
+        return mutualFriendsCount;
+    }
+
+    public void setMutualFriendsCount(Integer mutualFriendsCount) {
+        this.mutualFriendsCount = mutualFriendsCount;
     }
 }

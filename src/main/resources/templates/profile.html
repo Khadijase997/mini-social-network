@@ -332,36 +332,10 @@
     </style>
 </head>
 <body>
-<nav class="navbar">
-    <div class="nav-container">
-
-        <a th:href="@{/home}" class="logo">
-            <div class="logo-icon">C</div>
-            <span class="logo-text">ConnectHub</span>
-        </a>
-
-        <div class="nav-menu">
-            <a href="#" class="nav-link active">Mon profil</a>
-            <a href="#" class="nav-link">Amis</a>
-            <a href="#" class="nav-link">Rechercher</a>
-        </div>
-
-        <div class="user-avatar">
-            <img th:if="${user.profileImage != null}"
-                 th:src="${user.profileImage}">
-            <span th:if="${user.profileImage == null}"
-                  th:text="${user.name.substring(0,2).toUpperCase()}"></span>
-        </div>
-
-    </div>
-</nav>
+<!-- ================= NAVBAR ================= -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="main-container">
-    <div class="welcome-message">
-        <h2>Bienvenue sur ConnectHub ! </h2>
-        <p>Votre réseau social pour vous connecter avec des amis</p>
-    </div>
-
     <div class="profile-header">
         <div class="profile-banner"></div>
         <div class="profile-content">
@@ -384,22 +358,80 @@
 
                 <div class="profile-stats">
                     <div class="stat-item">
-                        <span class="stat-number" th:text="${user != null ? user.friendsCount : 0}">0</span>
+                        <span class="stat-number" th:text="${stats != null ? stats.friendsCount : 0}">0</span>
                         <span class="stat-label">Amis</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">0</span>
-                        <span class="stat-label">Demandes</span>
+                        <span class="stat-number" th:text="${stats != null ? stats.postsCount : 0}">0</span>
+                        <span class="stat-label">Publications</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">0</span>
-                        <span class="stat-label">Suggestions</span>
+                        <span class="stat-number" th:text="${stats != null ? stats.totalLikesReceived : 0}">0</span>
+                        <span class="stat-label">Likes reçus</span>
+                    </div>
+                </div>
+
+                <!-- Intérêts -->
+                <div th:if="${user.interests != null and !user.interests.isEmpty()}" style="margin: 20px 0;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <span th:each="interest : ${user.interests}" 
+                              style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                     color: white;
+                                     padding: 6px 12px;
+                                     border-radius: 20px;
+                                     font-size: 13px;
+                                     font-weight: 500;">
+                            <span th:text="${interest}">Intérêt</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Liens externes (visibles uniquement pour les amis ou soi-même) -->
+                <div th:if="${(isOwnProfile or areFriends) and (user.whatsappLink != null or user.instagramLink != null or user.messengerLink != null)}" 
+                     style="margin: 20px 0;">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <a th:if="${user.whatsappLink != null}" 
+                           th:href="${user.whatsappLink}" 
+                           target="_blank"
+                           style="display: flex; align-items: center; gap: 8px; 
+                                  padding: 10px 15px; 
+                                  background: #25D366; 
+                                  color: white; 
+                                  border-radius: 8px; 
+                                  text-decoration: none; 
+                                  font-weight: 500;">
+                            📱 WhatsApp
+                        </a>
+                        <a th:if="${user.instagramLink != null}" 
+                           th:href="${user.instagramLink}" 
+                           target="_blank"
+                           style="display: flex; align-items: center; gap: 8px; 
+                                  padding: 10px 15px; 
+                                  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
+                                  color: white; 
+                                  border-radius: 8px; 
+                                  text-decoration: none; 
+                                  font-weight: 500;">
+                            📷 Instagram
+                        </a>
+                        <a th:if="${user.messengerLink != null}" 
+                           th:href="${user.messengerLink}" 
+                           target="_blank"
+                           style="display: flex; align-items: center; gap: 8px; 
+                                  padding: 10px 15px; 
+                                  background: #0084FF; 
+                                  color: white; 
+                                  border-radius: 8px; 
+                                  text-decoration: none; 
+                                  font-weight: 500;">
+                            💬 Messenger
+                        </a>
                     </div>
                 </div>
 
                 <div class="profile-actions">
-                    <a href="#" class="btn btn-primary">Modifier le profil</a>
-                    <a href="#" class="btn btn-secondary">Rechercher des amis</a>
+                    <a th:if="${isOwnProfile}" th:href="@{/profile/edit}" class="btn btn-primary">Modifier le profil</a>
+                    <a th:href="@{/search}" class="btn btn-secondary">Rechercher des amis</a>
                 </div>
             </div>
         </div>
@@ -430,22 +462,33 @@
             </div>
         </div>
     </div>
-    <div class="card" style="margin-bottom:30px;">
+    <div th:if="${isOwnProfile}" class="card" style="margin-bottom:30px;">
         <h2 class="card-title">✍️ Créer une publication</h2>
 
-        <form th:action="@{/posts}" method="post">
-        <textarea name="content"
-                  placeholder="À quoi pensez-vous ?"
-                  required
-                  style="
-                      width:100%;
-                      min-height:120px;
-                      padding:15px;
-                      border-radius:12px;
-                      border:1px solid #e2e8f0;
-                      resize:none;
-                      font-size:15px;
-                  "></textarea>
+        <form th:action="@{/posts}" method="post" enctype="multipart/form-data">
+            <textarea name="content"
+                      placeholder="À quoi pensez-vous ?"
+                      required
+                      style="
+                          width:100%;
+                          min-height:120px;
+                          padding:15px;
+                          border-radius:12px;
+                          border:1px solid #e2e8f0;
+                          resize:none;
+                          font-size:15px;
+                      "></textarea>
+
+            <div style="margin-top: 10px;">
+                <label for="image" style="display: block; margin-bottom: 5px; color: #666; font-size: 14px;">
+                    📷 Ajouter une image (optionnel)
+                </label>
+                <input type="file" 
+                       id="image" 
+                       name="image" 
+                       accept="image/*"
+                       style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px;">
+            </div>
 
             <button type="submit"
                     class="btn btn-primary"
@@ -454,24 +497,38 @@
             </button>
         </form>
     </div>
+    
     <div class="card">
-        <h2 class="card-title">📝 Mes publications</h2>
+        <h2 class="card-title">
+            <span th:text="${isOwnProfile ? '📝 Mes publications' : '📝 Publications'}">Publications</span>
+        </h2>
 
         <div th:if="${myPosts.size() == 0}">
-            <p style="color:#718096; text-align:center;">
+            <p style="color:#718096; text-align:center; padding: 40px 0;">
                 Aucune publication pour le moment.
             </p>
         </div>
 
         <div th:each="post : ${myPosts}"
-             style="padding:15px; border-bottom:1px solid #eee;">
+             style="padding:20px; border-bottom:1px solid #eee; border-radius: 12px; margin-bottom: 10px; background: #f9f9f9;">
 
             <p th:text="${post.content}"
-               style="margin-bottom:8px;"></p>
+               style="margin-bottom:12px; line-height: 1.6;"></p>
 
-            <small style="color:#718096;"
-                   th:text="${#temporals.format(post.createdAt,'dd/MM/yyyy HH:mm')}">
-            </small>
+            <img th:if="${post.imageUrl != null}" 
+                 th:src="${post.imageUrl}" 
+                 style="width: 100%; border-radius: 8px; margin-bottom: 12px; max-height: 400px; object-fit: cover;"
+                 alt="Image du post">
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <small style="color:#718096;"
+                       th:text="${#temporals.format(post.createdAt,'dd/MM/yyyy HH:mm')}">
+                </small>
+                <div style="display: flex; gap: 15px; font-size: 13px; color: #764ba2;">
+                    <span>❤️ <span th:text="${post.likes != null ? post.likes.size() : 0}">0</span></span>
+                    <span>💬 <span th:text="${post.comments != null ? post.comments.size() : 0}">0</span></span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
