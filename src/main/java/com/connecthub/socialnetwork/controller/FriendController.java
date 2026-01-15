@@ -54,7 +54,7 @@ public class FriendController {
 
             List<User> recommendations = List.of();
             try {
-                recommendations = friendService.getFriendRecommendationsWithInterests(userId, 10);
+                recommendations = friendService.getFriendRecommendationsWithInterests(userId, 100);
             } catch (Exception e) {
                 // Log failure quietly and continue
                 // Ideally log.error(), but for now just suppress to keep page alive.

@@ -4,8 +4,7 @@ import com.connecthub.socialnetwork.model.User;
 import com.connecthub.socialnetwork.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import java.util.*;
-import java.util.stream.Collectors;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.*;
 
 @Service
 @org.springframework.transaction.annotation.Transactional

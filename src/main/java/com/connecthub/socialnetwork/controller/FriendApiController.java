@@ -9,7 +9,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,8 +55,7 @@ public class FriendApiController {
 
         User current = getCurrentUser(userDetails);
         return ResponseEntity.ok(
-                friendService.getReceivedFriendRequests(current.getId())
-        );
+                friendService.getReceivedFriendRequests(current.getId()));
     }
 
     @PostMapping("/accept/{fromUserId}")
@@ -70,8 +68,7 @@ public class FriendApiController {
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Demande d'ami acceptée"
-        ));
+                "message", "Demande d'ami acceptée"));
     }
 
     @DeleteMapping("/reject/{fromUserId}")
@@ -84,8 +81,7 @@ public class FriendApiController {
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Demande d'ami refusée"
-        ));
+                "message", "Demande d'ami refusée"));
     }
 
     // =========================
@@ -98,8 +94,7 @@ public class FriendApiController {
 
         User current = getCurrentUser(userDetails);
         return ResponseEntity.ok(
-                friendService.getSentFriendRequests(current.getId())
-        );
+                friendService.getSentFriendRequests(current.getId()));
     }
 
     @DeleteMapping("/cancel/{toUserId}")
@@ -112,8 +107,7 @@ public class FriendApiController {
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Demande d'ami annulée"
-        ));
+                "message", "Demande d'ami annulée"));
     }
 
     // =========================
@@ -126,8 +120,7 @@ public class FriendApiController {
 
         User current = getCurrentUser(userDetails);
         return ResponseEntity.ok(
-                friendService.getFriends(current.getId())
-        );
+                friendService.getFriends(current.getId()));
     }
 
     @DeleteMapping("/{friendId}")
@@ -140,8 +133,7 @@ public class FriendApiController {
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Ami retiré avec succès"
-        ));
+                "message", "Ami retiré avec succès"));
     }
 
     // =========================
@@ -150,7 +142,7 @@ public class FriendApiController {
 
     @GetMapping("/suggestions")
     public ResponseEntity<List<UserResponse>> getSuggestions(
-            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "100") int limit,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         User current = getCurrentUser(userDetails);
@@ -162,8 +154,7 @@ public class FriendApiController {
                     UserResponse dto = userService.toUserResponse(user);
                     dto.setRelationStatus(friendService.getRelationStatus(current, user));
                     dto.setMutualFriendsCount(
-                            friendService.getMutualFriendsCount(current.getId(), user.getId())
-                    );
+                            friendService.getMutualFriendsCount(current.getId(), user.getId()));
                     return dto;
                 })
                 .toList();
@@ -185,7 +176,6 @@ public class FriendApiController {
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Demande d'ami envoyée avec succès"
-        ));
+                "message", "Demande d'ami envoyée avec succès"));
     }
 }

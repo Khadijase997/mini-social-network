@@ -17,7 +17,8 @@ public class SocialNetworkApplication {
 
     /**
      * Import CSV au démarrage (optionnel et configurable).
-     * Objectif: rendre visibles les utilisateurs du dataset sur le site (recherche/suggestions).
+     * Objectif: rendre visibles les utilisateurs du dataset sur le site
+     * (recherche/suggestions).
      */
     @Bean
     CommandLineRunner importCsvUsersOnStartup(
@@ -25,13 +26,12 @@ public class SocialNetworkApplication {
             UserRepository userRepository,
             @Value("${connecthub.csv-import.enabled:false}") boolean enabled,
             @Value("${connecthub.csv-import.max-users:200}") int maxUsers,
-            @Value("${connecthub.csv-import.only-if-empty:true}") boolean onlyIfEmpty
-    ) {
+            @Value("${connecthub.csv-import.only-if-empty:true}") boolean onlyIfEmpty) {
         return args -> {
             if (!enabled) {
                 return;
             }
-            if (onlyIfEmpty && userRepository.count() > 0) {
+            if (onlyIfEmpty && userRepository.count() > 5) {
                 return;
             }
             dataImportService.importUsersFromCSV(maxUsers);
