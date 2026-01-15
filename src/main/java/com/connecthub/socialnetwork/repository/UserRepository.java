@@ -46,17 +46,21 @@ public interface UserRepository extends Neo4jRepository<User, String> {
 
     /**
      * Recherche par intérêts partagés
-     * Retourne les utilisateurs ayant au moins un intérêt en commun
+     * Retourne les utilisateurs ayant des intérêts en commun, ou simplement
+     * d'autres utilisateurs (repli)
+     * Exclut soi-même, les amis déjà connectés, les demandes en attente et les
+     * bloqués.
      */
     @Query("""
                 MATCH (current:User {id: $userId})
                 MATCH (other:User)
                 WHERE other.id <> $userId
-                  AND any(interest IN current.interests WHERE interest IN other.interests)
-                  AND NOT (current)-[:BLOCKED]->(other)
-                  AND NOT (other)-[:BLOCKED]->(current)
-                WITH other, size([i IN current.interests WHERE i IN other.interests]) as commonInterests
-                ORDER BY commonInterests DESC
+                  AND NOT (current)-[:CONNECTED_TO]-(other)
+                  AND NOT (current)-[:FRIEND_REQUEST]-(other)
+                  AND NOT (current)-[:BLOCKED]-(other)
+                WITH other,
+                     size([i IN coalesce(current.interests, []) WHERE i IN coalesce(other.interests, [])]) as commonInterests
+                ORDER BY commonInterests DESC, other.name ASC
                 RETURN other
                 LIMIT $limit
             """)
@@ -80,11 +84,14 @@ public interface UserRepository extends Neo4jRepository<User, String> {
             """)
     int countTotalLikesReceived(String userId);
 
-    @Query("MATCH (sender:User {id: $senderId})-[r:FRIEND_REQUEST]->(receiver:User {id: $receiverId}) DELETE r CREATE (sender)-[:CONNECTED_TO]->(receiver) CREATE (receiver)-[:CONNECTED_TO]->(sender)")
+    @Query("MATCH (sender:User {id: $senderId})-[r:FRIEND_REQUEST]->(receiver:User {id: $receiverId}) DELETE r CREATE (sender)-[:CONNECTED_TO]->(receiver)")
     void acceptFriendRequest(@Param("senderId") String senderId, @Param("receiverId") String receiverId);
 
     @Query("MATCH (sender:User {id: $senderId})-[r:FRIEND_REQUEST]->(receiver:User {id: $receiverId}) DELETE r")
     void rejectFriendRequest(@Param("senderId") String senderId, @Param("receiverId") String receiverId);
+
+    @Query("MATCH (sender:User {id: $fromUserId}), (receiver:User {id: $toUserId}) MERGE (sender)-[:FRIEND_REQUEST]->(receiver)")
+    void createFriendRequest(@Param("fromUserId") String fromUserId, @Param("toUserId") String toUserId);
 
     @Query("MATCH (u1:User {id: $userId})-[r:CONNECTED_TO]-(u2:User {id: $friendId}) DELETE r")
     void removeFriend(@Param("userId") String userId, @Param("friendId") String friendId);
@@ -99,4 +106,15 @@ public interface UserRepository extends Neo4jRepository<User, String> {
                 LIMIT $limit
             """)
     List<User> findSomeUsers(@Param("limit") int limit);
+
+    /**
+     * Répare les utilisateurs qui n'ont pas de propriété 'id'.
+     * Utilise l'ID interne ou génère un UUID si possible via Cypher.
+     * Note: Neo4j 4.x+ supporte randomUUID()
+     */
+    @Query("MATCH (u:User) WHERE u.id IS NULL SET u.id = apoc.create.uuid() RETURN count(u)")
+    int repairMissingIdsWithApoc();
+
+    @Query("MATCH (u:User) WHERE u.id IS NULL AND u.email = $email SET u.id = $newId")
+    void setUserIdByEmail(@Param("email") String email, @Param("newId") String newId);
 }

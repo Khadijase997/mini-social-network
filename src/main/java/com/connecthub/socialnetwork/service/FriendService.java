@@ -17,30 +17,8 @@ public class FriendService {
     }
 
     public void sendFriendRequest(String fromUserId, String toUserId) {
-        if (fromUserId.equals(toUserId)) {
-            throw new RuntimeException("Impossible de s'envoyer une demande à soi-même");
-        }
-        User fromUser = userRepository.findById(fromUserId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur source introuvable"));
-        User toUser = userRepository.findById(toUserId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur cible introuvable"));
-
-        if (fromUser.getFriends().contains(toUser)) {
-            throw new RuntimeException("Vous êtes déjà amis");
-        }
-        if (fromUser.getSentFriendRequests().contains(toUser)) {
-            throw new RuntimeException("Demande déjà envoyée");
-        }
-        if (fromUser.getReceivedFriendRequests().contains(toUser)) {
-            // If the other person already sent a request, just accept it?
-            // For now, let's just throw or handle. The UI usually handles this state.
-            // But technically we should probably auto-accept if mutual.
-            // Sticking to simple logic for now as requested.
-            throw new RuntimeException("Cet utilisateur vous a déjà envoyé une demande");
-        }
-
-        fromUser.getSentFriendRequests().add(toUser);
-        userRepository.save(fromUser);
+        // Utilisation de la requête Cypher native pour fiabilité
+        userRepository.createFriendRequest(fromUserId, toUserId);
     }
 
     public void acceptFriendRequest(String fromUserId, String toUserId) {
@@ -69,7 +47,7 @@ public class FriendService {
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<User> getFriends(String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable avec l'ID : " + userId));
         // Force initialization to avoid LazyInitializationException if outside
         // transaction
         List<User> friends = new ArrayList<>(user.getFriends());
@@ -192,58 +170,10 @@ public class FriendService {
      */
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<User> getFriendRecommendationsWithInterests(String userId, int limit) {
-        User currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-
-        Set<String> myInterests = currentUser.getInterests();
-        if (myInterests == null || myInterests.isEmpty()) {
-            return new ArrayList<>(); // Pas d'intérêts, pas de reco basées sur intérêts
-        }
-
-        // Cache des IDs à exclure (Soi-même, Amis, Demandes reçues, Demandes envoyées,
-        // Bloqués)
-        Set<String> excludedIds = new HashSet<>();
-        excludedIds.add(userId);
-        currentUser.getFriends().forEach(u -> excludedIds.add(u.getId()));
-        currentUser.getSentFriendRequests().forEach(u -> excludedIds.add(u.getId()));
-        currentUser.getReceivedFriendRequests().forEach(u -> excludedIds.add(u.getId()));
-        currentUser.getBlockedUsers().forEach(u -> excludedIds.add(u.getId()));
-
-        // Récupérer les candidats potentiels
-        // L'idéal serait une requête Cypher optimisée, mais pour rester simple et
-        // éviter StackOverflow:
-        // On cherche les utilisateurs qui ont au moins UN intérêt en commun.
-        List<User> candidates = userRepository.findUsersBySharedInterests(userId, 50); // Fetch top 50 matches
-
-        // Calcul du score et filtrage final
-        Map<User, Integer> scoredCandidates = new HashMap<>();
-
-        for (User candidate : candidates) {
-            String cid = candidate.getId();
-            if (excludedIds.contains(cid)) {
-                continue;
-            }
-
-            Set<String> candidateInterests = candidate.getInterests();
-            if (candidateInterests == null)
-                continue;
-
-            // Compter les intérêts communs (Intersection)
-            long commonCount = myInterests.stream()
-                    .filter(candidateInterests::contains)
-                    .count();
-
-            if (commonCount > 0) {
-                // Score = nombre d'intérêts communs * 10
-                scoredCandidates.put(candidate, (int) commonCount * 10);
-            }
-        }
-
-        // Trier par score décroissant
-        return scoredCandidates.entrySet().stream()
-                .sorted(Map.Entry.<User, Integer>comparingByValue().reversed())
-                .limit(limit)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+        // La requête Cypher dans UserRepository gère désormais :
+        // 1. L'exclusion de soi-même, des amis, des demandes en attente et des bloqués
+        // 2. Le calcul du nombre d'intérêts en commun
+        // 3. Le tri par pertinence (plus d'intérêts communs en premier)
+        return userRepository.findUsersBySharedInterests(userId, limit);
     }
 }

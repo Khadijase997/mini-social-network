@@ -215,6 +215,12 @@ public class UserController {
             return null;
         }
 
-        return userService.findByEmail(authentication.getName()).orElse(null);
+        User user = userService.findByEmail(authentication.getName()).orElse(null);
+        if (user != null) {
+            System.out.println("DEBUG: Current User loaded: " + user.getEmail() + " with ID: " + user.getId());
+        } else {
+            System.out.println("DEBUG: No current user found for email: " + authentication.getName());
+        }
+        return user;
     }
 }

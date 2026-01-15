@@ -35,7 +35,7 @@
         /* =====================
            PAGE TITLE
            ===================== */
-        .friends-container > h1 {
+        .friends-container>h1 {
             text-align: center;
             font-size: 32px;
             font-weight: 700;
@@ -73,7 +73,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-color: transparent;
-            box-shadow: 0 6px 20px rgba(102,126,234,0.35);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
         }
 
         /* =====================
@@ -95,10 +95,10 @@
 
         .tab-content.active {
             display: block;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 25px;
             padding: 35px;
-            box-shadow: 0 10px 40px rgba(167,139,250,0.2);
+            box-shadow: 0 10px 40px rgba(167, 139, 250, 0.2);
         }
 
         /* =====================
@@ -115,23 +115,16 @@
            ===================== */
         .friend-card {
             background: white;
-<<<<<<< HEAD
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-=======
             border-radius: 20px;
             padding: 25px 20px;
             text-align: center;
-            box-shadow: 0 8px 30px rgba(167,139,250,0.15);
+            box-shadow: 0 8px 30px rgba(167, 139, 250, 0.15);
             transition: all 0.35s;
->>>>>>> 5315d540891309ef92e09992532aababd8dd6e07
         }
 
         .friend-card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 14px 40px rgba(167,139,250,0.3);
+            box-shadow: 0 14px 40px rgba(167, 139, 250, 0.3);
         }
 
         /* =====================
@@ -280,10 +273,10 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" onclick="showTab('friends')">Mes amis</button>
-            <button class="tab" onclick="showTab('received')">Demandes reçues</button>
-            <button class="tab" onclick="showTab('sent')">Demandes envoyées</button>
-            <button class="tab" onclick="showTab('recommendations')">Recommandations</button>
+            <button class="tab active" onclick="showTab(this, 'friends')">Mes amis</button>
+            <button class="tab" onclick="showTab(this, 'received')">Demandes reçues</button>
+            <button class="tab" onclick="showTab(this, 'sent')">Demandes envoyées</button>
+            <button class="tab" onclick="showTab(this, 'recommendations')">Recommandations</button>
         </div>
 
         <!-- Tab: Mes amis -->
@@ -400,7 +393,7 @@
 
     <script>
         // Gestion des onglets
-        function showTab(tabName) {
+        function showTab(btn, tabName) {
             // Masquer tous les contenus
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
@@ -412,10 +405,15 @@
             });
 
             // Afficher le contenu sélectionné
-            document.getElementById('tab-' + tabName).classList.add('active');
+            const content = document.getElementById('tab-' + tabName);
+            if (content) {
+                content.classList.add('active');
+            }
 
             // Activer l'onglet sélectionné
-            event.target.classList.add('active');
+            if (btn) {
+                btn.classList.add('active');
+            }
         }
 
         // Fonctions pour gérer les amis
