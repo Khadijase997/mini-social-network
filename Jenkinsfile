@@ -18,13 +18,19 @@ pipeline {
 
         stage('Gitleaks - Secrets Detection') {
             steps {
-                sh 'gitleaks detect --source . --report-format json --report-path gitleaks-report.json --exit-code 0'
+                sh '''
+                    docker run --rm -v $(pwd):/repo zricethezav/gitleaks:latest \
+                    detect --source /repo --report-format json --report-path /repo/gitleaks-report.json --exit-code 0
+                '''
             }
         }
 
         stage('Semgrep - SAST') {
             steps {
-                sh 'semgrep scan --config auto --json --output semgrep-report.json .'
+                sh '''
+                    docker run --rm -v $(pwd):/src returntocorp/semgrep:latest \
+                    semgrep scan --config auto --json --output /src/semgrep-report.json /src
+                '''
             }
         }
 
@@ -36,13 +42,19 @@ pipeline {
 
         stage('Syft - SBOM Generation') {
             steps {
-                sh 'syft dir:. -o cyclonedx-json=sbom.json'
+                sh '''
+                    docker run --rm -v $(pwd):/src anchore/syft:latest \
+                    dir:/src -o cyclonedx-json=/src/sbom.json
+                '''
             }
         }
 
         stage('Grype - SCA') {
             steps {
-                sh 'grype sbom:./sbom.json -o json > grype-report.json'
+                sh '''
+                    docker run --rm -v $(pwd):/src anchore/grype:latest \
+                    sbom:/src/sbom.json -o json > grype-report.json
+                '''
             }
         }
 
