@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        DTRACK_URL = 'http://dtrack-apiserver:8080'
         DTRACK_URL = 'http://dependency-track:8080'
         DTRACK_API_KEY = credentials('dtrack-api-key')
         PROJECT_NAME = 'mini-social-network'
