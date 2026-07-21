@@ -24,12 +24,7 @@ pipeline {
                 archiveArtifacts artifacts: 'semgrep-report.json'
             }
         }
-        stage('Build image') {
-            steps {
-                sh 'docker build -t mini-social-network:${GIT_COMMIT} .'
-            }
-        }
-        stage('SBOM - Syft') {
+                stage('SBOM - Syft') {
             steps {
                 sh '''
                 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
@@ -47,7 +42,14 @@ pipeline {
                 archiveArtifacts artifacts: 'scan-results.json'
             }
         }
-
+stage('Install Dependencies') {
+    steps {
+        sh '''
+        npm ci --prefix .
+        npm ci --prefix frontend
+        '''
+    }
+}
         stage('Publish to Dependency-Track') {
             steps {
                 withCredentials([string(credentialsId: 'dtrack-api-key', variable: 'DTRACK_KEY')]) {
@@ -62,6 +64,12 @@ pipeline {
                 }
             }
         }
+stage('Build image') {
+            steps {
+                sh 'docker build -t mini-social-network:${GIT_COMMIT} .'
+            }
+        }
+
 
         stage('Deploy Neo4j') {
             steps {
