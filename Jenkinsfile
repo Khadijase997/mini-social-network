@@ -29,10 +29,11 @@ pipeline {
         }
 
         stage('Build Jar') {
-            steps {
-                sh './gradlew build -x test'
-            }
-        }
+    steps {
+        sh 'chmod +x ./gradlew'
+        sh './gradlew build -x test'
+    }
+}
 
         stage('Syft - SBOM Generation') {
             steps {
