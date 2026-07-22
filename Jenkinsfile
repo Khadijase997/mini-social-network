@@ -36,10 +36,10 @@ pipeline {
 }
 
         stage('Syft - SBOM Generation') {
-            steps {
-                sh 'syft dir:. -o cyclonedx-json=sbom.json'
-            }
-        }
+    steps {
+        sh 'syft dir:. -o cyclonedx-json@1.5=sbom.json'
+    }
+}
 
         stage('Grype - SCA') {
             steps {
