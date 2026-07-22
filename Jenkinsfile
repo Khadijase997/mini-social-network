@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DTRACK_URL = 'http://dtrack-apiserver:8080'    
+        DTRACK_URL = 'http://dtrack-apiserver:8080'
         DTRACK_API_KEY = credentials('dtrack-api-key')
         PROJECT_NAME = 'mini-social-network'
         PROJECT_VERSION = "${env.BUILD_NUMBER}"
@@ -18,44 +18,31 @@ pipeline {
 
         stage('Gitleaks - Secrets Detection') {
             steps {
-                sh '''
-                    docker run --rm -v $(pwd):/repo zricethezav/gitleaks:latest \
-                    detect --source /repo --report-format json --report-path /repo/gitleaks-report.json --exit-code 0
-                '''
+                sh 'gitleaks detect --source . --report-format json --report-path gitleaks-report.json --exit-code 0'
             }
         }
 
         stage('Semgrep - SAST') {
             steps {
-                sh '''
-                    docker run --rm -v $(pwd):/src returntocorp/semgrep:latest \
-                    semgrep scan --config auto --json --output /src/semgrep-report.json /src
-                '''
+                sh 'semgrep scan --config auto --json --output semgrep-report.json .'
             }
         }
 
-      stage('Build Jar') {
-    steps {
-        sh 'chmod +x gradlew'
-        sh './gradlew build -x test'
-    }
-}
+        stage('Build Jar') {
+            steps {
+                sh './gradlew build -x test'
+            }
+        }
 
         stage('Syft - SBOM Generation') {
             steps {
-                sh '''
-                    docker run --rm -v $(pwd):/src anchore/syft:latest \
-                    dir:/src -o cyclonedx-json=/src/sbom.json
-                '''
+                sh 'syft dir:. -o cyclonedx-json=sbom.json'
             }
         }
 
         stage('Grype - SCA') {
             steps {
-                sh '''
-                    docker run --rm -v $(pwd):/src anchore/grype:latest \
-                    sbom:/src/sbom.json -o json > grype-report.json
-                '''
+                sh 'grype sbom:./sbom.json -o json > grype-report.json'
             }
         }
 
