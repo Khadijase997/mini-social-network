@@ -35,3 +35,12 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Rapports de scan générés par le pipeline CI/CD
+sbom.json
+sbom-*.json
+gitleaks-report.json
+semgrep-report.json
+grype-report.json
+npm-audit-report.json
+scan-results.json
