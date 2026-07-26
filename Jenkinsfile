@@ -113,8 +113,8 @@ pipeline {
         script {
             def maxAttempts = 12
             def waitSeconds = 10
-            def blocking = []
             def violations = []
+            def blocking = []
 
             for (int i = 0; i < maxAttempts; i++) {
                 def response = sh(
@@ -135,7 +135,8 @@ pipeline {
             }
 
             blocking = violations.findAll {
-                it.policyCondition.policy.name == 'sentrix-policy-gate-blocking' && it.type == 'FAIL'
+                it.policyCondition.policy.name == 'sentrix-policy-gate-blocking' &&
+                it.policyCondition.policy.violationState == 'FAIL'
             }
 
             echo "Violations bloquantes détectées : ${blocking.size()}"
