@@ -60,6 +60,27 @@ pipeline {
                 """
             }
         }
+stage('Policy Gate Check') {          // ← à ajouter ici
+    steps {
+        script {
+            def response = sh(
+                script: '''
+                    curl -s -X GET "http://dtrack-apiserver:8080/api/v1/violation/project/${PROJECT_UUID}" \
+                    -H "X-Api-Key: ${DTRACK_API_KEY}"
+                ''',
+                returnStdout: true
+            ).trim()
+
+            def violations = readJSON text: response
+            def blocking = violations.findAll { it.policyCondition.policy.name == 'sentrix-policy-gate' && it.type == 'FAIL' }
+
+            if (blocking.size() > 0) {
+                error("Build bloqué : vulnérabilité(s) critique(s) détectée(s) via Policy Gate")
+            }
+        }
+    }
+}
+
     }
 
     post {
