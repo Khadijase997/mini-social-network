@@ -4,7 +4,7 @@ pipeline {
         DTRACK_URL = 'http://dtrack-apiserver:8080'
         DTRACK_API_KEY = credentials('dtrack-api-key')
         PROJECT_NAME = 'mini-social-network'
-        PROJECT_VERSION = "${env.BUILD_NUMBER}"
+        PROJECT_VERSION = 'latest'
     }
     stages {
         stage('Checkout') {
@@ -39,103 +39,99 @@ pipeline {
             }
         }
         stage('Publish SBOM to Dependency-Track') {
-    steps {
-        script {
-            def uploadResponse = sh(
-                script: '''
-                    curl -s -X POST "${DTRACK_URL}/api/v1/bom" \
-                    -H "X-Api-Key: ${DTRACK_API_KEY}" \
-                    -H "Content-Type: multipart/form-data" \
-                    -F "autoCreate=true" \
-                    -F "projectName=${PROJECT_NAME}" \
-                    -F "projectVersion=${PROJECT_VERSION}" \
-                    -F "bom=@sbom.json"
-                ''',
-                returnStdout: true
-            ).trim()
+            steps {
+                script {
+                    def uploadResponse = sh(
+                        script: '''
+                            curl -s -X POST "${DTRACK_URL}/api/v1/bom" \
+                            -H "X-Api-Key: ${DTRACK_API_KEY}" \
+                            -H "Content-Type: multipart/form-data" \
+                            -F "autoCreate=true" \
+                            -F "projectName=${PROJECT_NAME}" \
+                            -F "projectVersion=${PROJECT_VERSION}" \
+                            -F "bom=@sbom.json"
+                        ''',
+                        returnStdout: true
+                    ).trim()
 
-            def upload = readJSON text: uploadResponse
-            env.BOM_TOKEN = upload.token
-            echo "Token de traitement BOM : ${env.BOM_TOKEN}"
-        }
-    }
-}
-
-stage('Wait for BOM Processing') {
-    steps {
-        script {
-            def maxAttempts = 20
-            def waitSeconds = 10
-            def processed = false
-
-            for (int i = 0; i < maxAttempts; i++) {
-                def statusResponse = sh(
-                    script: '''
-                        curl -s -X GET "${DTRACK_URL}/api/v1/bom/token/${BOM_TOKEN}" \
-                        -H "X-Api-Key: ${DTRACK_API_KEY}"
-                    ''',
-                    returnStdout: true
-                ).trim()
-
-                def status = readJSON text: statusResponse
-                echo "Tentative ${i+1}/${maxAttempts} : processing = ${status.processing}"
-
-                if (status.processing == false) {
-                    processed = true
-                    break
+                    def upload = readJSON text: uploadResponse
+                    env.BOM_TOKEN = upload.token
+                    echo "Token de traitement BOM : ${env.BOM_TOKEN}"
                 }
-                sleep(time: waitSeconds, unit: 'SECONDS')
-            }
-
-            if (!processed) {
-                error("Timeout : Dependency-Track n'a pas terminé le traitement du BOM après ${maxAttempts * waitSeconds}s.")
             }
         }
-    }
-}
+        stage('Wait for BOM Processing') {
+            steps {
+                script {
+                    def maxAttempts = 20
+                    def waitSeconds = 10
+                    def processed = false
 
-stage('Fetch Project UUID') {
-    steps {
-        script {
-            def lookupResponse = sh(
-                script: '''
-                    curl -s -X GET "${DTRACK_URL}/api/v1/project/lookup?name=${PROJECT_NAME}&version=${PROJECT_VERSION}" \
-                    -H "X-Api-Key: ${DTRACK_API_KEY}"
-                ''',
-                returnStdout: true
-            ).trim()
-            def project = readJSON text: lookupResponse
-            env.PROJECT_UUID = project.uuid
-            echo "UUID récupéré : ${env.PROJECT_UUID}"
-        }
-    }
-}
+                    for (int i = 0; i < maxAttempts; i++) {
+                        def statusResponse = sh(
+                            script: '''
+                                curl -s -X GET "${DTRACK_URL}/api/v1/bom/token/${BOM_TOKEN}" \
+                                -H "X-Api-Key: ${DTRACK_API_KEY}"
+                            ''',
+                            returnStdout: true
+                        ).trim()
 
-stage('Policy Gate Check') {
-    steps {
-        script {
-            def response = sh(
-                script: '''
-                    curl -s -X GET "${DTRACK_URL}/api/v1/violation/project/${PROJECT_UUID}" \
-                    -H "X-Api-Key: ${DTRACK_API_KEY}"
-                ''',
-                returnStdout: true
-            ).trim()
+                        def status = readJSON text: statusResponse
+                        echo "Tentative ${i+1}/${maxAttempts} : processing = ${status.processing}"
 
-            def violations = readJSON text: response
-            def blocking = violations.findAll {
-                it.policyCondition.policy.name == 'sentrix-policy-gate-blocking' && it.type == 'FAIL'
-            }
+                        if (status.processing == false) {
+                            processed = true
+                            break
+                        }
+                        sleep(time: waitSeconds, unit: 'SECONDS')
+                    }
 
-            echo "Violations bloquantes détectées : ${blocking.size()}"
-
-            if (blocking.size() > 0) {
-                error("Build bloqué : vulnérabilité(s) critique(s) détectée(s) via Policy Gate")
+                    if (!processed) {
+                        error("Timeout : Dependency-Track n'a pas terminé le traitement du BOM après ${maxAttempts * waitSeconds}s.")
+                    }
+                }
             }
         }
-    }
-}
-}
+        stage('Fetch Project UUID') {
+            steps {
+                script {
+                    def lookupResponse = sh(
+                        script: '''
+                            curl -s -X GET "${DTRACK_URL}/api/v1/project/lookup?name=${PROJECT_NAME}&version=${PROJECT_VERSION}" \
+                            -H "X-Api-Key: ${DTRACK_API_KEY}"
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                    def project = readJSON text: lookupResponse
+                    env.PROJECT_UUID = project.uuid
+                    echo "UUID récupéré : ${env.PROJECT_UUID}"
+                }
+            }
+        }
+        stage('Policy Gate Check') {
+            steps {
+                script {
+                    def response = sh(
+                        script: '''
+                            curl -s -X GET "${DTRACK_URL}/api/v1/violation/project/${PROJECT_UUID}" \
+                            -H "X-Api-Key: ${DTRACK_API_KEY}"
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
+                    def violations = readJSON text: response
+                    def blocking = violations.findAll {
+                        it.policyCondition.policy.name == 'sentrix-policy-gate-blocking' && it.type == 'FAIL'
+                    }
+
+                    echo "Violations bloquantes détectées : ${blocking.size()}"
+
+                    if (blocking.size() > 0) {
+                        error("Build bloqué : vulnérabilité(s) critique(s) détectée(s) via Policy Gate")
+                    }
+                }
+            }
+        }
     }
     post {
         always {
