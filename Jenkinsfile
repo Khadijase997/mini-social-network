@@ -75,23 +75,41 @@ pipeline {
                 }
             }
         }
-       stage('Policy Gate Check') {
+  stage('Policy Gate Check') {
     steps {
         script {
-            // Laisse le temps à Dependency-Track de terminer l'évaluation de la policy
-            sleep(time: 20, unit: 'SECONDS')
+            def maxAttempts = 6
+            def waitSeconds = 10
+            def blocking = []
+            def found = false
 
-            def response = sh(
-                script: '''
-                    curl -s -X GET "${DTRACK_URL}/api/v1/violation/project/${PROJECT_UUID}" \
-                    -H "X-Api-Key: ${DTRACK_API_KEY}"
-                ''',
-                returnStdout: true
-            ).trim()
+            for (int i = 0; i < maxAttempts; i++) {
+                sleep(time: waitSeconds, unit: 'SECONDS')
 
-            def violations = readJSON text: response
-            def blocking = violations.findAll {
-                it.policyCondition.policy.name == 'sentrix-policy-gate-blocking' && it.type == 'FAIL'
+                def response = sh(
+                    script: '''
+                        curl -s -X GET "${DTRACK_URL}/api/v1/violation/project/${PROJECT_UUID}" \
+                        -H "X-Api-Key: ${DTRACK_API_KEY}"
+                    ''',
+                    returnStdout: true
+                ).trim()
+
+                def violations = readJSON text: response
+
+                if (violations.size() > 0) {
+                    found = true
+                    blocking = violations.findAll {
+                        it.policyCondition.policy.name == 'sentrix-policy-gate-blocking' && it.type == 'FAIL'
+                    }
+                    echo "Tentative ${i+1}/${maxAttempts} : ${violations.size()} violation(s) totale(s) trouvée(s)"
+                    break
+                } else {
+                    echo "Tentative ${i+1}/${maxAttempts} : analyse pas encore terminée, nouvelle attente..."
+                }
+            }
+
+            if (!found) {
+                echo "Aucune violation détectée après ${maxAttempts * waitSeconds}s d'attente."
             }
 
             echo "Violations bloquantes détectées : ${blocking.size()}"
