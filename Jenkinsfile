@@ -75,30 +75,33 @@ pipeline {
                 }
             }
         }
-        stage('Policy Gate Check') {
-            steps {
-                script {
-                    def response = sh(
-                        script: '''
-                            curl -s -X GET "${DTRACK_URL}/api/v1/violation/project/${PROJECT_UUID}" \
-                            -H "X-Api-Key: ${DTRACK_API_KEY}"
-                        ''',
-                        returnStdout: true
-                    ).trim()
+       stage('Policy Gate Check') {
+    steps {
+        script {
+            // Laisse le temps à Dependency-Track de terminer l'évaluation de la policy
+            sleep(time: 20, unit: 'SECONDS')
 
-                    def violations = readJSON text: response
-                    def blocking = violations.findAll {
-                        it.policyCondition.policy.name == 'sentrix-policy-gate' && it.type == 'FAIL'
-                    }
+            def response = sh(
+                script: '''
+                    curl -s -X GET "${DTRACK_URL}/api/v1/violation/project/${PROJECT_UUID}" \
+                    -H "X-Api-Key: ${DTRACK_API_KEY}"
+                ''',
+                returnStdout: true
+            ).trim()
 
-                    echo "Violations bloquantes détectées : ${blocking.size()}"
+            def violations = readJSON text: response
+            def blocking = violations.findAll {
+                it.policyCondition.policy.name == 'sentrix-policy-gate-blocking' && it.type == 'FAIL'
+            }
 
-                    if (blocking.size() > 0) {
-                        error("Build bloqué : vulnérabilité(s) critique(s) détectée(s) via Policy Gate")
-                    }
-                }
+            echo "Violations bloquantes détectées : ${blocking.size()}"
+
+            if (blocking.size() > 0) {
+                error("Build bloqué : vulnérabilité(s) critique(s) détectée(s) via Policy Gate")
             }
         }
+    }
+}
     }
     post {
         always {
