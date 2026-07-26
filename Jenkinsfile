@@ -39,77 +39,92 @@ pipeline {
             }
         }
         stage('Publish SBOM to Dependency-Track') {
-            steps {
-                sh """
-                    curl -X POST "${DTRACK_URL}/api/v1/bom" \
+    steps {
+        script {
+            def uploadResponse = sh(
+                script: '''
+                    curl -s -X POST "${DTRACK_URL}/api/v1/bom" \
                     -H "X-Api-Key: ${DTRACK_API_KEY}" \
                     -H "Content-Type: multipart/form-data" \
                     -F "autoCreate=true" \
                     -F "projectName=${PROJECT_NAME}" \
                     -F "projectVersion=${PROJECT_VERSION}" \
                     -F "bom=@sbom.json"
-                """
-            }
+                ''',
+                returnStdout: true
+            ).trim()
+
+            def upload = readJSON text: uploadResponse
+            env.BOM_TOKEN = upload.token
+            echo "Token de traitement BOM : ${env.BOM_TOKEN}"
         }
-        stage('Fetch Project UUID') {
-            steps {
-                script {
-                    // Petit délai pour laisser Dependency-Track finir de traiter le SBOM
-                    sleep(time: 10, unit: 'SECONDS')
+    }
+}
 
-                    def lookupResponse = sh(
-                        script: '''
-                            curl -s -X GET "${DTRACK_URL}/api/v1/project/lookup?name=${PROJECT_NAME}&version=${PROJECT_VERSION}" \
-                            -H "X-Api-Key: ${DTRACK_API_KEY}"
-                        ''',
-                        returnStdout: true
-                    ).trim()
-
-                    if (!lookupResponse) {
-                        error("Impossible de récupérer le projet depuis Dependency-Track : réponse vide.")
-                    }
-
-                    def project = readJSON text: lookupResponse
-                    env.PROJECT_UUID = project.uuid
-                    echo "UUID récupéré : ${env.PROJECT_UUID}"
-                }
-            }
-        }
-  stage('Policy Gate Check') {
+stage('Wait for BOM Processing') {
     steps {
         script {
-            def maxAttempts = 6
+            def maxAttempts = 20
             def waitSeconds = 10
-            def blocking = []
-            def found = false
+            def processed = false
 
             for (int i = 0; i < maxAttempts; i++) {
-                sleep(time: waitSeconds, unit: 'SECONDS')
-
-                def response = sh(
+                def statusResponse = sh(
                     script: '''
-                        curl -s -X GET "${DTRACK_URL}/api/v1/violation/project/${PROJECT_UUID}" \
+                        curl -s -X GET "${DTRACK_URL}/api/v1/bom/token/${BOM_TOKEN}" \
                         -H "X-Api-Key: ${DTRACK_API_KEY}"
                     ''',
                     returnStdout: true
                 ).trim()
 
-                def violations = readJSON text: response
+                def status = readJSON text: statusResponse
+                echo "Tentative ${i+1}/${maxAttempts} : processing = ${status.processing}"
 
-                if (violations.size() > 0) {
-                    found = true
-                    blocking = violations.findAll {
-                        it.policyCondition.policy.name == 'sentrix-policy-gate-blocking' && it.type == 'FAIL'
-                    }
-                    echo "Tentative ${i+1}/${maxAttempts} : ${violations.size()} violation(s) totale(s) trouvée(s)"
+                if (status.processing == false) {
+                    processed = true
                     break
-                } else {
-                    echo "Tentative ${i+1}/${maxAttempts} : analyse pas encore terminée, nouvelle attente..."
                 }
+                sleep(time: waitSeconds, unit: 'SECONDS')
             }
 
-            if (!found) {
-                echo "Aucune violation détectée après ${maxAttempts * waitSeconds}s d'attente."
+            if (!processed) {
+                error("Timeout : Dependency-Track n'a pas terminé le traitement du BOM après ${maxAttempts * waitSeconds}s.")
+            }
+        }
+    }
+}
+
+stage('Fetch Project UUID') {
+    steps {
+        script {
+            def lookupResponse = sh(
+                script: '''
+                    curl -s -X GET "${DTRACK_URL}/api/v1/project/lookup?name=${PROJECT_NAME}&version=${PROJECT_VERSION}" \
+                    -H "X-Api-Key: ${DTRACK_API_KEY}"
+                ''',
+                returnStdout: true
+            ).trim()
+            def project = readJSON text: lookupResponse
+            env.PROJECT_UUID = project.uuid
+            echo "UUID récupéré : ${env.PROJECT_UUID}"
+        }
+    }
+}
+
+stage('Policy Gate Check') {
+    steps {
+        script {
+            def response = sh(
+                script: '''
+                    curl -s -X GET "${DTRACK_URL}/api/v1/violation/project/${PROJECT_UUID}" \
+                    -H "X-Api-Key: ${DTRACK_API_KEY}"
+                ''',
+                returnStdout: true
+            ).trim()
+
+            def violations = readJSON text: response
+            def blocking = violations.findAll {
+                it.policyCondition.policy.name == 'sentrix-policy-gate-blocking' && it.type == 'FAIL'
             }
 
             echo "Violations bloquantes détectées : ${blocking.size()}"
@@ -119,6 +134,7 @@ pipeline {
             }
         }
     }
+}
 }
     }
     post {
