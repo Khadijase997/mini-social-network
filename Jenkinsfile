@@ -148,9 +148,22 @@ pipeline {
     }
 }
     }
-    post {
-        always {
-            archiveArtifacts artifacts: 'gitleaks-report.json, semgrep-report.json, sbom.json, grype-report.json', allowEmptyArchive: true
+   post {
+    failure {
+        script {
+            def dtUrl = "${env.DTRACK_URL}/projects/${env.PROJECT_UUID}"
+            emailext(
+                subject: "🚨 Build bloqué - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <p>Le Policy Gate Sentrix a détecté une vulnérabilité bloquante sur <b>${env.JOB_NAME}</b>.</p>
+                    <p><a href="${env.BUILD_URL}">Voir le build Jenkins</a></p>
+                    <p><a href="${dtUrl}">Voir le projet sur Dependency-Track</a></p>
+                """,
+                mimeType: 'text/html',
+                to: '${DEFAULT_RECIPIENTS}',
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+            )
         }
     }
+}
 }
